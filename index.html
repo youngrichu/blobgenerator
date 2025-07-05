@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actually Working Blob Generator</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .upload-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .variation-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid #e9ecef;
+        }
+
+        .section-title {
+            font-size: 1.4em;
+            color: #495057;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 10px;
+        }
+
+        .upload-area {
+            border: 3px dashed #6c757d;
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            background: #fff;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e3f2fd;
+            transform: scale(1.02);
+        }
+
+        .upload-icon {
+            font-size: 3em;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .upload-text {
+            font-size: 1.1em;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .preview-area {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .variation-display {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            min-height: 350px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #e9ecef;
+            margin-bottom: 20px;
+        }
+
+        .variation-label {
+            font-size: 1.2em;
+            color: #495057;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .variation-svg {
+            width: 100%;
+            height: 280px;
+            border-radius: 10px;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1.1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+
+        .btn-small {
+            padding: 10px 20px;
+            font-size: 0.9em;
+            margin: 5px 0;
+        }
+
+        .controls {
+            background: #e3f2fd;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+
+        .control-group {
+            margin-bottom: 15px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #1976d2;
+        }
+
+        .control-group input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+
+        .control-group .value-display {
+            text-align: center;
+            font-family: monospace;
+            color: #495057;
+            background: white;
+            padding: 5px;
+            border-radius: 5px;
+        }
+
+        .algorithm-select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+
+        .status-info {
+            background: #fff3cd;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+            font-size: 0.9em;
+            color: #856404;
+        }
+
+        .error {
+            color: #dc3545;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        .success {
+            color: #155724;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Actually Working Blob Generator</h1>
+        
+        <div class="main-content">
+            <div class="upload-section">
+                <h2 class="section-title">📁 Upload & Generate</h2>
+                
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">🎨</div>
+                    <div class="upload-text">Drop your SVG blob here</div>
+                    <div class="upload-text">or click to browse</div>
+                    <input type="file" id="fileInput" class="file-input" accept=".svg">
+                </div>
+                
+                <div class="preview-area" id="originalPreview">
+                    <div style="text-align: center; color: #6c757d;">
+                        Upload an SVG to see preview
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <h3 style="margin-bottom: 15px; color: #1976d2;">🎨 Color & Style</h3>
+                    
+                    <div class="control-group">
+                        <label>Blob Color:</label>
+                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                            <input type="color" id="colorPicker" value="#667eea" style="width: 50px; height: 35px; border: none; border-radius: 8px; cursor: pointer;">
+                            <input type="text" id="colorInput" value="#667eea" placeholder="#667eea" style="padding: 8px; border: 2px solid #e9ecef; border-radius: 8px; width: 100px; font-family: monospace;">
+                            <select id="colorFormat" style="padding: 8px; border: 2px solid #e9ecef; border-radius: 8px;">
+                                <option value="hex">HEX</option>
+                                <option value="rgb">RGB</option>
+                                <option value="hsl">HSL</option>
+                            </select>
+                            <button onclick="randomizeColor()" style="padding: 8px 12px; background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer;">🎲</button>
+                        </div>
+                        <div style="font-size: 0.8em; color: #666;">
+                            Current: <span id="currentColorDisplay">#667eea</span>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label style="display: flex; align-items: center; cursor: pointer;">
+                            <input type="checkbox" id="randomColors" style="margin-right: 8px; transform: scale(1.2);">
+                            🌈 Random colors for each variation
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="controls">
+                    <h3 style="margin-bottom: 15px; color: #1976d2;">🎛️ Variation Controls</h3>
+                    
+                    <div class="control-group">
+                        <label>Algorithm:</label>
+                        <select id="algorithmSelect" class="algorithm-select">
+                            <option value="chaos">Chaos Mode (Random Fun)</option>
+                            <option value="waves">Wave Distortion</option>
+                            <option value="ripples">Ripple Effect</option>
+                            <option value="stretch">Stretch & Squeeze</option>
+                            <option value="wobble">Wobble Deformation</option>
+                            <option value="spikes">Spike Generator</option>
+                        </select>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Intensity (How crazy?):</label>
+                        <input type="range" id="intensityControl" min="0.1" max="1.0" step="0.1" value="0.4">
+                        <div class="value-display" id="intensityValue">40%</div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Randomness:</label>
+                        <input type="range" id="randomnessControl" min="0.1" max="1.0" step="0.1" value="0.6">
+                        <div class="value-display" id="randomnessValue">60%</div>
+                    </div>
+                </div>
+                
+                <button class="btn" id="generateBtn" onclick="generateVariation()" disabled>
+                    🎲 Generate Wild Variation
+                </button>
+                <button class="btn btn-secondary btn-small" onclick="generateBatch()" disabled id="batchBtn">
+                    ⚡ Generate 5 Random Ones
+                </button>
+                <button class="btn btn-secondary btn-small" onclick="resetAll()">🔄 Reset</button>
+            </div>
+            
+            <div class="variation-section">
+                <h2 class="section-title">✨ Your Crazy Variation</h2>
+                
+                <div class="variation-display" id="variationDisplay">
+                    <div style="text-align: center; color: #6c757d;">
+                        Upload an SVG and hit "Generate Wild Variation"<br>
+                        to see some actual crazy changes!
+                    </div>
+                </div>
+                
+                <button class="btn btn-secondary btn-small" onclick="downloadVariation()" disabled id="downloadBtn">
+                    📥 Download This Variation
+                </button>
+                
+                <div class="status-info">
+                    <strong>🎬 Animation Collection:</strong><br>
+                    <span id="collectionStatus">No variations collected yet</span><br><br>
+                    
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
+                            <input type="checkbox" id="includePattern" style="margin-right: 8px; transform: scale(1.2);" checked>
+                            🎨 Include pattern overlay in animation
+                        </label>
+                        
+                        <div id="patternSelector" style="margin-left: 20px; margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 8px; font-size: 0.9em; color: #495057; font-weight: 500;">
+                                Pattern Type:
+                            </label>
+                            <select id="patternType" style="width: 100%; padding: 8px; border: 2px solid #e9ecef; border-radius: 8px; margin-bottom: 10px;">
+                                <option value="stars">✨ Twinkling Stars</option>
+                                <option value="dots">⚪ Polka Dots</option>
+                                <option value="chevron">📐 Chevron Zigzag</option>
+                                <option value="stripes">📏 Diagonal Stripes</option>
+                                <option value="hexagon">⬡ Hexagonal Grid</option>
+                                <option value="checkerboard">◼️ Checkerboard</option>
+                                <option value="circles">🔵 Floating Circles</option>
+                                <option value="waves">〰️ Wave Lines</option>
+                                <option value="grid">▦ Square Grid</option>
+                                <option value="triangles">🔺 Triangle Pattern</option>
+                            </select>
+                            
+                            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
+                                <label style="font-size: 0.85em; color: #495057;">Density:</label>
+                                <input type="range" id="patternDensity" min="0.3" max="2.0" step="0.1" value="1.0" style="flex: 1;">
+                                <span id="densityValue" style="font-size: 0.8em; color: #6c757d; font-family: monospace; width: 30px;">1.0</span>
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <label style="font-size: 0.85em; color: #495057;">Opacity:</label>
+                                <input type="range" id="patternOpacity" min="0.1" max="1.0" step="0.1" value="0.7" style="flex: 1;">
+                                <span id="opacityValue" style="font-size: 0.8em; color: #6c757d; font-family: monospace; width: 30px;">0.7</span>
+                            </div>
+                        </div>
+                        
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; margin-bottom: 8px; font-size: 0.9em; color: #495057; font-weight: 500;">
+                                ⚡ Animation Speed:
+                            </label>
+                            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 5px;">
+                                <span style="font-size: 0.8em; color: #6c757d;">Slow</span>
+                                <input type="range" id="animationSpeed" min="0.25" max="3.0" step="0.25" value="1.0" style="flex: 1;">
+                                <span style="font-size: 0.8em; color: #6c757d;">Fast</span>
+                            </div>
+                            <div style="text-align: center;">
+                                <span id="speedValue" style="font-size: 0.85em; color: #495057; font-family: monospace; font-weight: bold;">1.0x Normal Speed</span>
+                            </div>
+                            <div style="font-size: 0.75em; color: #6c757d; text-align: center; margin-top: 3px;">
+                                Duration: <span id="durationDisplay">5.0s</span> per cycle
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-small" onclick="collectVariation()" disabled id="collectBtn">
+                        ➕ Collect This One
+                    </button>
+                    <button class="btn btn-secondary btn-small" onclick="createAnimation()" disabled id="animateBtn">
+                        🎭 Make Animation
+                    </button>
+                </div>
+                
+                <div id="animationPreview" style="display: none; background: white; border-radius: 10px; padding: 15px; margin-top: 15px; min-height: 200px;">
+                    <div style="text-align: center; margin-bottom: 10px; font-weight: bold; color: #495057;">🎭 Animation Preview</div>
+                    <div id="animationDisplay" style="width: 100%; height: 180px; display: flex; align-items: center; justify-content: center;"></div>
+                    <button class="btn btn-secondary btn-small" onclick="downloadAnimation()" style="margin-top: 10px;">
+                        📥 Download Animated SVG
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let originalPath = '';
+        let originalPoints = [];
+        let currentVariation = '';
+        let variationCounter = 0;
+        let collectedVariations = [];
+        let shapeCenter = { x: 0, y: 0 };
+        let averageRadius = 100;
+        let globalColor = '#667eea';
+        let globalColorSecondary = '#764ba2';
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            setupEventListeners();
+            updateControlDisplays();
+            updatePatternDisplays();
+            updateSpeedDisplay();
+            togglePatternSelector();
+        });
+        
+        function setupEventListeners() {
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            
+            uploadArea.addEventListener('click', () => fileInput.click());
+            uploadArea.addEventListener('dragover', handleDragOver);
+            uploadArea.addEventListener('drop', handleDrop);
+            uploadArea.addEventListener('dragleave', handleDragLeave);
+            fileInput.addEventListener('change', handleFileSelect);
+            
+            document.getElementById('intensityControl').addEventListener('input', updateControlDisplays);
+            document.getElementById('randomnessControl').addEventListener('input', updateControlDisplays);
+            
+            // Color controls
+            document.getElementById('colorPicker').addEventListener('change', (e) => updateGlobalColor(e.target.value));
+            document.getElementById('colorInput').addEventListener('change', updateGlobalColorFromInput);
+            document.getElementById('colorFormat').addEventListener('change', updateColorInputFormat);
+            
+            // Pattern controls
+            document.getElementById('patternDensity').addEventListener('input', updatePatternDisplays);
+            document.getElementById('patternOpacity').addEventListener('input', updatePatternDisplays);
+            document.getElementById('includePattern').addEventListener('change', togglePatternSelector);
+            document.getElementById('animationSpeed').addEventListener('input', updateSpeedDisplay);
+        }
+        
+        function updatePatternDisplays() {
+            const density = document.getElementById('patternDensity').value;
+            const opacity = document.getElementById('patternOpacity').value;
+            
+            document.getElementById('densityValue').textContent = density;
+            document.getElementById('opacityValue').textContent = opacity;
+        }
+        
+        function updateSpeedDisplay() {
+            const speed = parseFloat(document.getElementById('animationSpeed').value);
+            const baseDuration = 5.0; // Base duration in seconds
+            const actualDuration = (baseDuration / speed).toFixed(1);
+            
+            document.getElementById('speedValue').textContent = `${speed}x ${speed === 1.0 ? 'Normal' : speed < 1.0 ? 'Slower' : 'Faster'} Speed`;
+            document.getElementById('durationDisplay').textContent = `${actualDuration}s`;
+        }
+        
+        function togglePatternSelector() {
+            const patternSelector = document.getElementById('patternSelector');
+            const includePattern = document.getElementById('includePattern').checked;
+            patternSelector.style.display = includePattern ? 'block' : 'none';
+        }
+        
+        // Pattern Generator Class
+        class PatternGenerator {
+            static generatePattern(type, bounds, density, opacity) {
+                const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = bounds;
+                
+                switch (type) {
+                    case 'stars':
+                        return this.generateStars(bounds, density, opacity);
+                    case 'dots':
+                        return this.generateDots(bounds, density, opacity);
+                    case 'chevron':
+                        return this.generateChevron(bounds, density, opacity);
+                    case 'stripes':
+                        return this.generateStripes(bounds, density, opacity);
+                    case 'hexagon':
+                        return this.generateHexagon(bounds, density, opacity);
+                    case 'checkerboard':
+                        return this.generateCheckerboard(bounds, density, opacity);
+                    case 'circles':
+                        return this.generateCircles(bounds, density, opacity);
+                    case 'waves':
+                        return this.generateWaves(bounds, density, opacity);
+                    case 'grid':
+                        return this.generateGrid(bounds, density, opacity);
+                    case 'triangles':
+                        return this.generateTriangles(bounds, density, opacity);
+                    default:
+                        return this.generateStars(bounds, density, opacity);
+                }
+            }
+            
+            static generateStars(bounds, density, opacity) {
+                const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = bounds;
+                const numStars = Math.floor((15 + Math.random() * 20) * density);
+                const starElements = [];
+                
+                for (let i = 0; i < numStars; i++) {
+                    const x = viewBoxX + Math.random() * viewBoxWidth;
+                    const y = viewBoxY + Math.random() * viewBoxHeight;
+                    const radius = (0.8 + Math.random() * 1.8) * density;
+                    const shouldTwinkle = Math.random() > 0.3;
+                    const delay = Math.random() * 4;
+                    const duration = 1.5 + Math.random() * 2;
+                    
+                    starElements.push(`
+        <circle class="star${shouldTwinkle ? ' twinkle' : ''}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${radius.toFixed(1)}" style="animation-delay: ${delay.toFixed(1)}s; animation-duration: ${duration.toFixed(1)}s;" opacity="${opacity}"/>`);
+                }
+                
+                return starElements.join('');
+            }
+            
+            static generateDots(bounds, density, opacity) {
+                const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = bounds;
+                const spacing = 20 / density;
+                const dotElements = [];
+                
+                for (let x = viewBoxX; x < viewBoxX + viewBoxWidth; x += spacing) {
+                    for (let y = viewBoxY; y < viewBoxY + viewBoxHeight; y += spacing) {
+                        const offsetX = x + (Math.random() - 0.5) * spacing * 0.3;
+                        const offsetY = y + (Math.random() - 0.5) * spacing * 0.3;
+                        const radius = (2 + Math.random() * 3) * density;
+                        
+                        dotElements.push(`
+        <circle cx="${offsetX.toFixed(1)}" cy="${offsetY.toFixed(1)}" r="${radius.toFixed(1)}" opacity="${opacity}"/>`);
+                    }
+                }
+                
+                return dotElements.join('');
+            }
+            
+            static generateChevron(bounds, density, opacity) {
+                const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = bounds;
+                const spacing = 25 / density;
+                const chevronElements = [];
+                
+                for (let y = viewBoxY; y < viewBoxY + viewBoxHeight + spacing; y += spacing) {
+                    const pathData = `M${viewBoxX},${y} L${viewBoxX + spacing/2},${y + spacing/2} L${viewBoxX + spacing},${y} L${viewBoxX + spacing*1.5},${y + spacing/2} L${viewBoxX + spacing*2},${y}`;
+                    
+                    for (let x = viewBoxX; x < viewBoxX + viewBoxWidth; x += spacing * 2) {
+                        const translatedPath = pathData.replace(/(\d+\.?\d*)/g, (match) => {
+                            return (parseFloat(match) + x - viewBoxX).toFixed(1);
+                        });
+                        
+                        chevronElements.push(`
+        <path d="${translatedPath}" stroke="rgba(255,255,255,${opacity})" stroke-width="${1 * density}" fill="none"/>`);
+                    }
+                }
+                
+                return chevronElements.join('');
+            }
+            
+            static generateStripes(bounds, density, opacity) {
+                const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = bounds;
+                const spacing = 15 / density;
+                const stripeElements = [];
+                
+                for (let i = 0; i < viewBoxWidth / spacing; i++) {
+                    const x1 = viewBoxX + i * spacing;
+                    const y1 = viewBoxY;
+                    const x2 = viewBoxX + i * spacing + viewBoxHeight;
+                    const y2 = viewBoxY + viewBoxHeight;
+                    
+                    stripeElements.push(`
+        <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="rgba(255,255,255,${opacity})" stroke-width="${2 * density}"/>`);
+                }
+                
+                return stripeElements.join('');
+            }
+            
+            static generateHexagon(bounds, density, opacity) {
+                const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = bounds;
+                const size = 12 / density;
+                const hexElements = [];
+                
+                const hexHeight = size * Math.sqrt(3);
+                const hexWidth = size * 2;
+                
+                for (let row = 0; row * hexHeight < viewBoxHeight + hexHeight; row++) {
+                    for (let col = 0; col * hexWidth * 0.75 < viewBoxWidth + hexWidth; col++) {
+                        const x = viewBoxX + col * hexWidth * 0.75;
+                        const y = viewBoxY + row * hexHeight + (col % 2) * hexHeight * 0.5;
+                        
+                        const points = [];
+                        for (let i = 0; i < 6; i++) {
+                            const angle = (i * Math.PI) / 3;
+                            const px = x + size * Math.cos(angle);
+                            const py = y + size * Math.sin(angle);
+                            points.push(`${px.toFixed(1)},${py.toFixed(1)}`);
+                        }
+                        
+                        hexElements.push(`
+        <polygon points="${points.join(' ')}" stroke="rgba(255,255,255,${opacity})" stroke-width="${1 * density}" fill="none"/>`);
+                    }
+                }
+                
+                return hexElements.join('');
+            }
+            
+            static generateCheckerboard(bounds, density, opacity) {
+                const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = bounds;
+                const size = 20 / density;
+                const checkerElements = [];
+                
+                for (let x = viewBoxX; x < viewBoxX + viewBoxWidth; x += size) {
+                    for (let y = viewBoxY; y < viewBoxY + viewBoxHeight; y += size) {
+                        const col = Math.floor((x - viewBoxX) / size);
+                        const row = Math.floor((y - viewBoxY) / size);
+                        
+                        if ((col + row) % 2 === 0) {
+                            checkerElements.push(`
+        <rect x="${x}" y="${y}" width="${size}" height="${size}" fill="rgba(255,255,255,${opacity})"/>`);
+                        }
+                    }
+                }
+                
+                return checkerElements.join('');
+            }
+            
+            static generateCircles(bounds, density, opacity) {
+                const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = bounds;
+                const numCircles = Math.floor(8 * density);
+                const circleElements = [];
+                
+                for (let i = 0; i < numCircles; i++) {
+                    const x = viewBoxX + Math.random() * viewBoxWidth;
+                    const y = viewBoxY + Math.random() * viewBoxHeight;
+                    const radius = (5 + Math.random() * 15) * density;
+                    const animationDelay = Math.random() * 3;
+                    
+                    circleElements.push(`
+        <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${radius.toFixed(1)}" 
+                stroke="rgba(255,255,255,${opacity})" stroke-width="${1 * density}" fill="none"
+                opacity="${opacity}">
+            <animate attributeName="r" values="${radius};${radius * 1.5};${radius}" 
+                     dur="4s" repeatCount="indefinite" begin="${animationDelay}s"/>
+        </circle>`);
+                }
+                
+                return circleElements.join('');
+            }
+            
+            static generateWaves(bounds, density, opacity) {
+                const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = bounds;
+                const spacing = 20 / density;
+                const waveElements = [];
+                
+                for (let y = viewBoxY; y < viewBoxY + viewBoxHeight; y += spacing) {
+                    let pathData = `M${viewBoxX},${y}`;
+                    for (let x = viewBoxX; x <= viewBoxX + viewBoxWidth; x += 10) {
+                        const waveY = y + Math.sin((x - viewBoxX) * 0.02 * density) * 5 * density;
+                        pathData += ` L${x},${waveY}`;
+                    }
+                    
+                    waveElements.push(`
+        <path d="${pathData}" stroke="rgba(255,255,255,${opacity})" stroke-width="${1.5 * density}" fill="none"/>`);
+                }
+                
+                return waveElements.join('');
+            }
+            
+            static generateGrid(bounds, density, opacity) {
+                const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = bounds;
+                const spacing = 25 / density;
+                const gridElements = [];
+                
+                // Vertical lines
+                for (let x = viewBoxX; x <= viewBoxX + viewBoxWidth; x += spacing) {
+                    gridElements.push(`
+        <line x1="${x}" y1="${viewBoxY}" x2="${x}" y2="${viewBoxY + viewBoxHeight}" 
+              stroke="rgba(255,255,255,${opacity})" stroke-width="${1 * density}"/>`);
+                }
+                
+                // Horizontal lines
+                for (let y = viewBoxY; y <= viewBoxY + viewBoxHeight; y += spacing) {
+                    gridElements.push(`
+        <line x1="${viewBoxX}" y1="${y}" x2="${viewBoxX + viewBoxWidth}" y2="${y}" 
+              stroke="rgba(255,255,255,${opacity})" stroke-width="${1 * density}"/>`);
+                }
+                
+                return gridElements.join('');
+            }
+            
+            static generateTriangles(bounds, density, opacity) {
+                const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = bounds;
+                const size = 15 / density;
+                const triangleElements = [];
+                
+                for (let x = viewBoxX; x < viewBoxX + viewBoxWidth; x += size * 1.5) {
+                    for (let y = viewBoxY; y < viewBoxY + viewBoxHeight; y += size * Math.sqrt(3) * 0.5) {
+                        const offsetX = ((y - viewBoxY) / (size * Math.sqrt(3) * 0.5)) % 2 === 0 ? 0 : size * 0.75;
+                        const centerX = x + offsetX;
+                        const centerY = y;
+                        
+                        const x1 = centerX;
+                        const y1 = centerY - size * 0.577;
+                        const x2 = centerX - size * 0.5;
+                        const y2 = centerY + size * 0.289;
+                        const x3 = centerX + size * 0.5;
+                        const y3 = centerY + size * 0.289;
+                        
+                        triangleElements.push(`
+        <polygon points="${x1},${y1} ${x2},${y2} ${x3},${y3}" 
+                 stroke="rgba(255,255,255,${opacity})" stroke-width="${1 * density}" fill="none"/>`);
+                    }
+                }
+                
+                return triangleElements.join('');
+            }
+        }
+        
+        function updateGlobalColor(color) {
+            globalColor = color;
+            globalColorSecondary = adjustBrightness(color, -20);
+            updateColorInput(color);
+            document.getElementById('currentColorDisplay').textContent = color;
+            
+            // Update current variation display if exists
+            if (currentVariation) {
+                showVariation();
+            }
+        }
+
+        function updateGlobalColorFromInput() {
+            const input = document.getElementById('colorInput').value.trim();
+            const format = document.getElementById('colorFormat').value;
+            
+            try {
+                let hexColor;
+                if (format === 'hex') {
+                    hexColor = input.startsWith('#') ? input : '#' + input;
+                } else if (format === 'rgb') {
+                    const matches = input.match(/(\d+),?\s*(\d+),?\s*(\d+)/);
+                    if (matches) {
+                        const r = parseInt(matches[1]);
+                        const g = parseInt(matches[2]);
+                        const b = parseInt(matches[3]);
+                        hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+                    }
+                } else if (format === 'hsl') {
+                    const matches = input.match(/(\d+),?\s*(\d+)%?,?\s*(\d+)%?/);
+                    if (matches) {
+                        const h = parseInt(matches[1]) / 360;
+                        const s = parseInt(matches[2]) / 100;
+                        const l = parseInt(matches[3]) / 100;
+                        const rgb = hslToRgb(h, s, l);
+                        hexColor = `#${rgb[0].toString(16).padStart(2, '0')}${rgb[1].toString(16).padStart(2, '0')}${rgb[2].toString(16).padStart(2, '0')}`;
+                    }
+                }
+                
+                if (hexColor && /^#[0-9A-F]{6}$/i.test(hexColor)) {
+                    updateGlobalColor(hexColor);
+                    document.getElementById('colorPicker').value = hexColor;
+                } else {
+                    showError('Invalid color format');
+                }
+            } catch (error) {
+                showError('Invalid color format');
+            }
+        }
+
+        function updateColorInputFormat() {
+            updateColorInput(globalColor);
+        }
+
+        function updateColorInput(hexColor) {
+            const format = document.getElementById('colorFormat').value;
+            const input = document.getElementById('colorInput');
+            
+            if (format === 'hex') {
+                input.value = hexColor;
+            } else if (format === 'rgb') {
+                const r = parseInt(hexColor.slice(1, 3), 16);
+                const g = parseInt(hexColor.slice(3, 5), 16);
+                const b = parseInt(hexColor.slice(5, 7), 16);
+                input.value = `${r}, ${g}, ${b}`;
+            } else if (format === 'hsl') {
+                const r = parseInt(hexColor.slice(1, 3), 16) / 255;
+                const g = parseInt(hexColor.slice(3, 5), 16) / 255;
+                const b = parseInt(hexColor.slice(5, 7), 16) / 255;
+                const hsl = rgbToHsl(r, g, b);
+                input.value = `${Math.round(hsl[0] * 360)}, ${Math.round(hsl[1] * 100)}%, ${Math.round(hsl[2] * 100)}%`;
+            }
+        }
+
+        function randomizeColor() {
+            const colors = ['#667eea', '#f093fb', '#4facfe', '#43e97b', '#fa709a', '#f5576c', '#764ba2', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f39c12', '#e74c3c', '#9b59b6', '#1abc9c', '#f1c40f', '#e67e22', '#2ecc71', '#3498db'];
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            updateGlobalColor(randomColor);
+            document.getElementById('colorPicker').value = randomColor;
+        }
+
+        function adjustBrightness(hex, percent) {
+            const r = parseInt(hex.slice(1, 3), 16);
+            const g = parseInt(hex.slice(3, 5), 16);
+            const b = parseInt(hex.slice(5, 7), 16);
+            
+            const newR = Math.max(0, Math.min(255, r + (r * percent / 100)));
+            const newG = Math.max(0, Math.min(255, g + (g * percent / 100)));
+            const newB = Math.max(0, Math.min(255, b + (b * percent / 100)));
+            
+            return `#${Math.round(newR).toString(16).padStart(2, '0')}${Math.round(newG).toString(16).padStart(2, '0')}${Math.round(newB).toString(16).padStart(2, '0')}`;
+        }
+
+        function hslToRgb(h, s, l) {
+            let r, g, b;
+            if (s === 0) {
+                r = g = b = l;
+            } else {
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+                const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                const p = 2 * l - q;
+                r = hue2rgb(p, q, h + 1/3);
+                g = hue2rgb(p, q, h);
+                b = hue2rgb(p, q, h - 1/3);
+            }
+            return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
+        }
+
+        function rgbToHsl(r, g, b) {
+            const max = Math.max(r, g, b);
+            const min = Math.min(r, g, b);
+            let h, s, l = (max + min) / 2;
+
+            if (max === min) {
+                h = s = 0;
+            } else {
+                const d = max - min;
+                s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                switch (max) {
+                    case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                    case g: h = (b - r) / d + 2; break;
+                    case b: h = (r - g) / d + 4; break;
+                }
+                h /= 6;
+            }
+            return [h, s, l];
+        }
+
+        function extractAndSetColors(svgDoc) {
+            let detectedColor = null;
+            
+            const paths = svgDoc.querySelectorAll('path');
+            for (let path of paths) {
+                const fill = path.getAttribute('fill');
+                if (fill && fill !== 'none' && fill !== 'transparent' && !fill.includes('url(')) {
+                    detectedColor = fill;
+                    break;
+                }
+            }
+            
+            if (!detectedColor) {
+                for (let path of paths) {
+                    const stroke = path.getAttribute('stroke');
+                    if (stroke && stroke !== 'none' && stroke !== 'transparent') {
+                        detectedColor = stroke;
+                        break;
+                    }
+                }
+            }
+            
+            if (detectedColor) {
+                globalColor = normalizeColor(detectedColor);
+                globalColorSecondary = adjustBrightness(globalColor, -20);
+                document.getElementById('colorPicker').value = globalColor;
+                updateColorInput(globalColor);
+                document.getElementById('currentColorDisplay').textContent = globalColor;
+                showSuccess(`Color auto-detected: ${globalColor}`);
+            }
+        }
+
+        function normalizeColor(color) {
+            if (color.startsWith('#')) return color;
+            
+            if (color.startsWith('rgb')) {
+                const matches = color.match(/rgb\((\d+),\s*(\d+),\s*(\d+)\)/);
+                if (matches) {
+                    const r = parseInt(matches[1]);
+                    const g = parseInt(matches[2]);
+                    const b = parseInt(matches[3]);
+                    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+                }
+            }
+            
+            const colorMap = {
+                red: '#ff0000', blue: '#0000ff', green: '#008000', yellow: '#ffff00',
+                orange: '#ffa500', purple: '#800080', pink: '#ffc0cb', brown: '#a52a2a',
+                black: '#000000', white: '#ffffff', gray: '#808080', grey: '#808080'
+            };
+            
+            return colorMap[color.toLowerCase()] || '#667eea';
+        }
+
+        function updateControlDisplays() {
+            const intensity = document.getElementById('intensityControl').value;
+            const randomness = document.getElementById('randomnessControl').value;
+            
+            document.getElementById('intensityValue').textContent = `${(intensity * 100).toFixed(0)}%`;
+            document.getElementById('randomnessValue').textContent = `${(randomness * 100).toFixed(0)}%`;
+        }
+        
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('uploadArea').classList.add('dragover');
+        }
+        
+        function handleDragLeave(e) {
+            e.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+        }
+        
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('uploadArea').classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files);
+            if (files.length > 0) processFile(files[0]);
+        }
+        
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            if (files.length > 0) processFile(files[0]);
+        }
+        
+        function processFile(file) {
+            if (file.type === 'image/svg+xml' || file.name.endsWith('.svg')) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    analyzeSVG(e.target.result);
+                };
+                reader.readAsText(file);
+            } else {
+                showError('Please upload a valid SVG file');
+            }
+        }
+        
+        function analyzeSVG(svgContent) {
+            try {
+                const parser = new DOMParser();
+                const svgDoc = parser.parseFromString(svgContent, 'image/svg+xml');
+                const paths = svgDoc.querySelectorAll('path');
+                
+                if (paths.length === 0) {
+                    showError('No paths found in SVG');
+                    return;
+                }
+                
+                originalPath = paths[0].getAttribute('d');
+                originalPoints = pathToPoints(originalPath);
+                
+                if (originalPoints.length < 3) {
+                    showError('Path too simple - need more points');
+                    return;
+                }
+                
+                analyzeShape();
+                extractAndSetColors(svgDoc);
+                showOriginalPreview(svgContent);
+                enableControls();
+                
+                showSuccess(`Loaded! Found ${originalPoints.length} points. Ready to make some crazy variations!`);
+            } catch (error) {
+                showError(`Error: ${error.message}`);
+            }
+        }
+        
+        function pathToPoints(pathString) {
+            const points = [];
+            const commands = pathString.match(/[MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*/g) || [];
+            
+            let currentX = 0, currentY = 0;
+            
+            commands.forEach(command => {
+                const cmd = command[0];
+                const coords = command.slice(1).trim();
+                const numbers = coords ? coords.match(/[+-]?([0-9]*[.])?[0-9]+/g)?.map(n => parseFloat(n)) || [] : [];
+                
+                switch (cmd.toLowerCase()) {
+                    case 'm':
+                        if (numbers.length >= 2) {
+                            currentX = cmd === 'M' ? numbers[0] : currentX + numbers[0];
+                            currentY = cmd === 'M' ? numbers[1] : currentY + numbers[1];
+                            points.push({ x: currentX, y: currentY });
+                        }
+                        break;
+                    case 'l':
+                        for (let i = 0; i < numbers.length; i += 2) {
+                            if (i + 1 < numbers.length) {
+                                currentX = cmd === 'L' ? numbers[i] : currentX + numbers[i];
+                                currentY = cmd === 'L' ? numbers[i + 1] : currentY + numbers[i + 1];
+                                points.push({ x: currentX, y: currentY });
+                            }
+                        }
+                        break;
+                    case 'c':
+                        for (let i = 0; i < numbers.length; i += 6) {
+                            if (i + 5 < numbers.length) {
+                                // Sample curve points
+                                for (let t = 0.25; t <= 1; t += 0.25) {
+                                    const cp1x = cmd === 'C' ? numbers[i] : currentX + numbers[i];
+                                    const cp1y = cmd === 'C' ? numbers[i + 1] : currentY + numbers[i + 1];
+                                    const cp2x = cmd === 'C' ? numbers[i + 2] : currentX + numbers[i + 2];
+                                    const cp2y = cmd === 'C' ? numbers[i + 3] : currentY + numbers[i + 3];
+                                    const endX = cmd === 'C' ? numbers[i + 4] : currentX + numbers[i + 4];
+                                    const endY = cmd === 'C' ? numbers[i + 5] : currentY + numbers[i + 5];
+                                    
+                                    const x = Math.pow(1-t, 3) * currentX + 
+                                             3 * Math.pow(1-t, 2) * t * cp1x + 
+                                             3 * (1-t) * Math.pow(t, 2) * cp2x + 
+                                             Math.pow(t, 3) * endX;
+                                    const y = Math.pow(1-t, 3) * currentY + 
+                                             3 * Math.pow(1-t, 2) * t * cp1y + 
+                                             3 * (1-t) * Math.pow(t, 2) * cp2y + 
+                                             Math.pow(t, 3) * endY;
+                                    points.push({ x, y });
+                                }
+                                currentX = cmd === 'C' ? numbers[i + 4] : currentX + numbers[i + 4];
+                                currentY = cmd === 'C' ? numbers[i + 5] : currentY + numbers[i + 5];
+                            }
+                        }
+                        break;
+                }
+            });
+            
+            // Make sure we have enough points
+            while (points.length < 20) {
+                const newPoints = [];
+                for (let i = 0; i < points.length; i++) {
+                    newPoints.push(points[i]);
+                    const next = points[(i + 1) % points.length];
+                    newPoints.push({
+                        x: (points[i].x + next.x) / 2,
+                        y: (points[i].y + next.y) / 2
+                    });
+                }
+                points.length = 0;
+                points.push(...newPoints);
+            }
+            
+            return points;
+        }
+        
+        function analyzeShape() {
+            // Calculate center
+            const centerX = originalPoints.reduce((sum, p) => sum + p.x, 0) / originalPoints.length;
+            const centerY = originalPoints.reduce((sum, p) => sum + p.y, 0) / originalPoints.length;
+            shapeCenter = { x: centerX, y: centerY };
+            
+            // Calculate average radius
+            const distances = originalPoints.map(p => 
+                Math.sqrt(Math.pow(p.x - centerX, 2) + Math.pow(p.y - centerY, 2))
+            );
+            averageRadius = distances.reduce((sum, d) => sum + d, 0) / distances.length;
+        }
+        
+        function generateVariation() {
+            if (originalPoints.length === 0) return;
+            
+            variationCounter++;
+            const algorithm = document.getElementById('algorithmSelect').value;
+            const intensity = parseFloat(document.getElementById('intensityControl').value);
+            const randomness = parseFloat(document.getElementById('randomnessControl').value);
+            
+            let deformedPoints;
+            
+            switch (algorithm) {
+                case 'chaos':
+                    deformedPoints = applyChaos(originalPoints, intensity, randomness);
+                    break;
+                case 'waves':
+                    deformedPoints = applyWaves(originalPoints, intensity, randomness);
+                    break;
+                case 'ripples':
+                    deformedPoints = applyRipples(originalPoints, intensity, randomness);
+                    break;
+                case 'stretch':
+                    deformedPoints = applyStretch(originalPoints, intensity, randomness);
+                    break;
+                case 'wobble':
+                    deformedPoints = applyWobble(originalPoints, intensity, randomness);
+                    break;
+                case 'spikes':
+                    deformedPoints = applySpikes(originalPoints, intensity, randomness);
+                    break;
+                default:
+                    deformedPoints = applyChaos(originalPoints, intensity, randomness);
+            }
+            
+            // Apply multiple smoothing passes for natural curves
+            deformedPoints = smoothPoints(deformedPoints, 3);
+            
+            currentVariation = pointsToSmoothPath(deformedPoints);
+            showVariation();
+            
+            document.getElementById('downloadBtn').disabled = false;
+            document.getElementById('collectBtn').disabled = false;
+            
+            showSuccess(`Generated smooth ${algorithm} variation #${variationCounter}!`);
+        }
+        
+        function applyChaos(points, intensity, randomness) {
+            const seed = variationCounter * 123.456;
+            return points.map((point, index) => {
+                const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
+                const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
+                
+                // Smoother multiple random effects
+                const chaos1 = Math.sin(angle * 4 + seed) * intensity * 0.25;
+                const chaos2 = Math.cos(angle * 2.5 + seed * 1.7) * intensity * 0.2;
+                const chaos3 = Math.sin(angle * 6.5 + index * 0.3 + seed) * intensity * 0.15;
+                
+                // Smoother random factor
+                const randomBase = seededRandom(seed + index * 0.1);
+                const randomFactor = (randomBase - 0.5) * randomness * intensity * 0.3;
+                
+                const newRadius = radius * (1 + chaos1 + chaos2 + chaos3 + randomFactor);
+                
+                return {
+                    x: shapeCenter.x + newRadius * Math.cos(angle),
+                    y: shapeCenter.y + newRadius * Math.sin(angle)
+                };
+            });
+        }
+        
+        function applyWaves(points, intensity, randomness) {
+            const seed = variationCounter * 789.123;
+            const waveFreq = 1.5 + randomness * 4; // Smoother frequency range
+            
+            return points.map((point, index) => {
+                const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
+                const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
+                
+                const wave = Math.sin(angle * waveFreq + seed) * intensity * 0.3;
+                const subWave = Math.cos(angle * waveFreq * 1.3 + seed * 1.4) * intensity * 0.15;
+                const microWave = Math.sin(angle * waveFreq * 2.1 + seed * 0.7) * intensity * 0.1;
+                
+                const newRadius = radius * (1 + wave + subWave + microWave);
+                
+                return {
+                    x: shapeCenter.x + newRadius * Math.cos(angle),
+                    y: shapeCenter.y + newRadius * Math.sin(angle)
+                };
+            });
+        }
+        
+        function applyWobble(points, intensity, randomness) {
+            const seed = variationCounter * 345.678;
+            
+            return points.map((point, index) => {
+                const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
+                const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
+                
+                // More gradual wobble with better continuity
+                const wobble1 = Math.sin(angle * 3.2 + seed + index * 0.05) * intensity * 0.2;
+                const wobble2 = Math.cos(angle * 4.7 + seed * 1.3 + index * 0.08) * intensity * 0.15;
+                const wobble3 = Math.sin(angle * 1.8 + seed * 2.1 + index * 0.03) * intensity * 0.12;
+                
+                // Smoother random wobble
+                const randomWobble = Math.sin(seededRandom(seed + index * 0.2) * Math.PI * 2) * randomness * intensity * 0.25;
+                
+                const newRadius = radius * (1 + wobble1 + wobble2 + wobble3 + randomWobble);
+                
+                return {
+                    x: shapeCenter.x + newRadius * Math.cos(angle),
+                    y: shapeCenter.y + newRadius * Math.sin(angle)
+                };
+            });
+        }
+        
+        function applyRipples(points, intensity, randomness) {
+            const seed = variationCounter * 456.789;
+            const rippleCount = Math.floor(2 + randomness * 4); // 2-6 ripples
+            
+            return points.map((point, index) => {
+                const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
+                const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
+                
+                let rippleEffect = 0;
+                for (let i = 0; i < rippleCount; i++) {
+                    const rippleAngle = (i / rippleCount) * Math.PI * 2;
+                    const rippleDistance = Math.abs(angle - rippleAngle);
+                    const ripple = Math.exp(-rippleDistance * 2) * Math.sin(rippleDistance * 10 + seed) * intensity * 0.3;
+                    rippleEffect += ripple;
+                }
+                
+                const newRadius = radius * (1 + rippleEffect);
+                
+                return {
+                    x: shapeCenter.x + newRadius * Math.cos(angle),
+                    y: shapeCenter.y + newRadius * Math.sin(angle)
+                };
+            });
+        }
+        
+        function applyStretch(points, intensity, randomness) {
+            const seed = variationCounter * 234.567;
+            const stretchAngle = seededRandom(seed) * Math.PI * 2;
+            const stretchRatio = 1 + intensity * (0.5 + randomness * 0.8);
+            
+            return points.map((point) => {
+                // Translate to center
+                let x = point.x - shapeCenter.x;
+                let y = point.y - shapeCenter.y;
+                
+                // Rotate to stretch axis
+                const cos = Math.cos(-stretchAngle);
+                const sin = Math.sin(-stretchAngle);
+                const rotX = x * cos - y * sin;
+                const rotY = x * sin + y * cos;
+                
+                // Apply stretch
+                const stretchedX = rotX * stretchRatio;
+                const stretchedY = rotY / Math.sqrt(stretchRatio);
+                
+                // Rotate back
+                const finalX = stretchedX * cos - stretchedY * sin;
+                const finalY = stretchedX * sin + stretchedY * cos;
+                
+                return {
+                    x: finalX + shapeCenter.x,
+                    y: finalY + shapeCenter.y
+                };
+            });
+        }
+        
+        function applyWobble(points, intensity, randomness) {
+            const seed = variationCounter * 345.678;
+            
+            return points.map((point, index) => {
+                const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
+                const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
+                
+                // Complex wobble with multiple frequencies
+                const wobble1 = Math.sin(angle * 4 + seed + index * 0.1) * intensity * 0.25;
+                const wobble2 = Math.cos(angle * 6 + seed * 1.5 + index * 0.15) * intensity * 0.2;
+                const wobble3 = Math.sin(angle * 2 + seed * 2 + index * 0.05) * intensity * 0.15;
+                const randomWobble = (seededRandom(seed + index * 10) - 0.5) * randomness * intensity * 0.3;
+                
+                const newRadius = radius * (1 + wobble1 + wobble2 + wobble3 + randomWobble);
+                
+                return {
+                    x: shapeCenter.x + newRadius * Math.cos(angle),
+                    y: shapeCenter.y + newRadius * Math.sin(angle)
+                };
+            });
+        }
+        
+        function applySpikes(points, intensity, randomness) {
+            const seed = variationCounter * 567.890;
+            const spikeCount = Math.floor(3 + randomness * 8); // 3-11 spikes
+            
+            return points.map((point, index) => {
+                const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
+                const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
+                
+                // Create spikes at regular intervals
+                const spikeAngle = Math.PI * 2 / spikeCount;
+                let spikeEffect = 0;
+                
+                for (let i = 0; i < spikeCount; i++) {
+                    const targetAngle = i * spikeAngle;
+                    let angleDiff = Math.abs(angle - targetAngle);
+                    if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
+                    
+                    const spikeWidth = 0.3 + randomness * 0.4;
+                    if (angleDiff < spikeWidth) {
+                        const spikeStrength = Math.cos(angleDiff / spikeWidth * Math.PI / 2);
+                        spikeEffect += spikeStrength * intensity * (0.4 + randomness * 0.4);
+                    }
+                }
+                
+                const newRadius = radius * (1 + spikeEffect);
+                
+                return {
+                    x: shapeCenter.x + newRadius * Math.cos(angle),
+                    y: shapeCenter.y + newRadius * Math.sin(angle)
+                };
+            });
+        }
+        
+        function seededRandom(seed) {
+            const x = Math.sin(seed) * 10000;
+            return x - Math.floor(x);
+        }
+        
+        function smoothPoints(points, passes = 3) {
+            let smoothed = [...points];
+            
+            for (let pass = 0; pass < passes; pass++) {
+                const newPoints = [];
+                
+                for (let i = 0; i < smoothed.length; i++) {
+                    const prev = smoothed[(i - 1 + smoothed.length) % smoothed.length];
+                    const current = smoothed[i];
+                    const next = smoothed[(i + 1) % smoothed.length];
+                    
+                    // Weighted average for smooth transitions
+                    const smoothFactor = 0.4;
+                    const x = current.x * (1 - smoothFactor) + (prev.x + next.x) * smoothFactor * 0.5;
+                    const y = current.y * (1 - smoothFactor) + (prev.y + next.y) * smoothFactor * 0.5;
+                    
+                    newPoints.push({ x, y });
+                }
+                
+                smoothed = newPoints;
+            }
+            
+            return smoothed;
+        }
+        
+        function pointsToSmoothPath(points) {
+            if (points.length === 0) return '';
+            
+            // Start the path
+            let path = `M${points[0].x.toFixed(2)},${points[0].y.toFixed(2)}`;
+            
+            // Create ultra-smooth curves using proper control points
+            for (let i = 0; i < points.length; i++) {
+                const current = points[i];
+                const next = points[(i + 1) % points.length];
+                const prev = points[(i - 1 + points.length) % points.length];
+                const nextNext = points[(i + 2) % points.length];
+                
+                // Calculate tangent vectors for smooth curves
+                const prevToNext = {
+                    x: next.x - prev.x,
+                    y: next.y - prev.y
+                };
+                
+                const currentToNextNext = {
+                    x: nextNext.x - current.x,
+                    y: nextNext.y - current.y
+                };
+                
+                // Normalize and scale tangent vectors
+                const prevToNextLen = Math.sqrt(prevToNext.x ** 2 + prevToNext.y ** 2) || 1;
+                const currentToNextNextLen = Math.sqrt(currentToNextNext.x ** 2 + currentToNextNext.y ** 2) || 1;
+                
+                const controlPointDistance = Math.min(
+                    Math.sqrt((next.x - current.x) ** 2 + (next.y - current.y) ** 2) * 0.35,
+                    30
+                );
+                
+                // First control point (from current)
+                const cp1x = current.x + (prevToNext.x / prevToNextLen) * controlPointDistance;
+                const cp1y = current.y + (prevToNext.y / prevToNextLen) * controlPointDistance;
+                
+                // Second control point (to next)
+                const cp2x = next.x - (currentToNextNext.x / currentToNextNextLen) * controlPointDistance;
+                const cp2y = next.y - (currentToNextNext.y / currentToNextNextLen) * controlPointDistance;
+                
+                path += ` C${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${next.x.toFixed(2)},${next.y.toFixed(2)}`;
+            }
+            
+            path += ' Z';
+            return path;
+        }
+        
+        function showOriginalPreview(svgContent) {
+            const previewArea = document.getElementById('originalPreview');
+            previewArea.innerHTML = svgContent;
+            
+            const svg = previewArea.querySelector('svg');
+            if (svg) {
+                svg.style.width = '100%';
+                svg.style.height = '100%';
+                svg.style.maxHeight = '220px';
+            }
+        }
+        
+        function showVariation() {
+            const display = document.getElementById('variationDisplay');
+            
+            const bounds = calculateBounds(currentVariation);
+            const padding = Math.max(bounds.width, bounds.height) * 0.15;
+            const viewBoxX = bounds.minX - padding;
+            const viewBoxY = bounds.minY - padding;
+            const viewBoxWidth = bounds.width + (padding * 2);
+            const viewBoxHeight = bounds.height + (padding * 2);
+            
+            // Use global colors or random colors based on checkbox
+            let color1, color2;
+            if (document.getElementById('randomColors').checked) {
+                color1 = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+                color2 = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+            } else {
+                color1 = globalColor;
+                color2 = globalColorSecondary;
+            }
+            
+            display.innerHTML = `
+                <div class="variation-label">Smooth Variation #${variationCounter}</div>
+                <svg class="variation-svg" viewBox="${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}">
+                    <defs>
+                        <linearGradient id="grad${variationCounter}" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:${color1};stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:${color2};stop-opacity:0.8" />
+                        </linearGradient>
+                    </defs>
+                    <path d="${currentVariation}" fill="url(#grad${variationCounter})" stroke="none"/>
+                </svg>
+            `;
+        }
+        
+        function calculateBounds(pathData) {
+            const numbers = pathData.match(/[+-]?([0-9]*[.])?[0-9]+/g)?.map(n => parseFloat(n)) || [];
+            
+            const points = [];
+            for (let i = 0; i < numbers.length; i += 2) {
+                if (i + 1 < numbers.length) {
+                    points.push({ x: numbers[i], y: numbers[i + 1] });
+                }
+            }
+            
+            if (points.length === 0) {
+                return { minX: 0, minY: 0, maxX: 100, maxY: 100, width: 100, height: 100 };
+            }
+            
+            const minX = Math.min(...points.map(p => p.x));
+            const maxX = Math.max(...points.map(p => p.x));
+            const minY = Math.min(...points.map(p => p.y));
+            const maxY = Math.max(...points.map(p => p.y));
+            
+            return {
+                minX, maxX, minY, maxY,
+                width: maxX - minX,
+                height: maxY - minY
+            };
+        }
+        
+        function generateBatch() {
+            if (!originalPoints.length) return;
+            
+            collectedVariations = [];
+            for (let i = 0; i < 5; i++) {
+                variationCounter++;
+                
+                // Random settings for each variation
+                const algorithms = ['chaos', 'waves', 'ripples', 'stretch', 'wobble', 'spikes'];
+                document.getElementById('algorithmSelect').value = algorithms[Math.floor(Math.random() * algorithms.length)];
+                document.getElementById('intensityControl').value = 0.3 + Math.random() * 0.5;
+                document.getElementById('randomnessControl').value = 0.4 + Math.random() * 0.5;
+                updateControlDisplays();
+                
+                const algorithm = document.getElementById('algorithmSelect').value;
+                const intensity = parseFloat(document.getElementById('intensityControl').value);
+                const randomness = parseFloat(document.getElementById('randomnessControl').value);
+                
+                let deformedPoints;
+                switch (algorithm) {
+                    case 'chaos': deformedPoints = applyChaos(originalPoints, intensity, randomness); break;
+                    case 'waves': deformedPoints = applyWaves(originalPoints, intensity, randomness); break;
+                    case 'ripples': deformedPoints = applyRipples(originalPoints, intensity, randomness); break;
+                    case 'stretch': deformedPoints = applyStretch(originalPoints, intensity, randomness); break;
+                    case 'wobble': deformedPoints = applyWobble(originalPoints, intensity, randomness); break;
+                    case 'spikes': deformedPoints = applySpikes(originalPoints, intensity, randomness); break;
+                }
+                
+                // Apply smoothing for natural curves
+                deformedPoints = smoothPoints(deformedPoints, 3);
+                
+                const variation = pointsToSmoothPath(deformedPoints);
+                collectedVariations.push(variation);
+            }
+            
+            currentVariation = collectedVariations[collectedVariations.length - 1];
+            showVariation();
+            updateCollectionStatus();
+            
+            document.getElementById('downloadBtn').disabled = false;
+            document.getElementById('collectBtn').disabled = false;
+            document.getElementById('animateBtn').disabled = false;
+            
+            showSuccess(`Generated 5 smooth variations! Ready for animation.`);
+        }
+        
+        function collectVariation() {
+            if (!currentVariation) return;
+            
+            collectedVariations.push(currentVariation);
+            updateCollectionStatus();
+            
+            if (collectedVariations.length >= 2) {
+                document.getElementById('animateBtn').disabled = false;
+            }
+            
+            showSuccess(`Collected variation #${variationCounter}! Total: ${collectedVariations.length}`);
+        }
+        
+        function updateCollectionStatus() {
+            const status = document.getElementById('collectionStatus');
+            if (collectedVariations.length === 0) {
+                status.textContent = 'No variations collected yet';
+            } else {
+                status.textContent = `${collectedVariations.length} variations collected`;
+            }
+        }
+        
+        function createAnimation() {
+            if (collectedVariations.length < 2) {
+                showError('Need at least 2 variations for animation');
+                return;
+            }
+            
+            const animationSVG = generateAnimation();
+            const previewArea = document.getElementById('animationPreview');
+            const displayArea = document.getElementById('animationDisplay');
+            
+            displayArea.innerHTML = animationSVG;
+            previewArea.style.display = 'block';
+            
+            const includePattern = document.getElementById('includePattern').checked;
+            const patternType = document.getElementById('patternType').value;
+            const patternName = document.getElementById('patternType').options[document.getElementById('patternType').selectedIndex].text;
+            const speed = parseFloat(document.getElementById('animationSpeed').value);
+            const duration = (5.0 / speed).toFixed(1);
+            
+            let message = `🎬 Animation ready with ${collectedVariations.length} variations`;
+            if (includePattern) {
+                message += ` and ${patternName} pattern`;
+            }
+            message += ` at ${speed}x speed (${duration}s per cycle)!`;
+            
+            showSuccess(message);
+        }
+        
+        function generateAnimation() {
+            // Calculate overall bounds
+            const allBounds = collectedVariations.map(v => calculateBounds(v));
+            const minX = Math.min(...allBounds.map(b => b.minX));
+            const maxX = Math.max(...allBounds.map(b => b.maxX));
+            const minY = Math.min(...allBounds.map(b => b.minY));
+            const maxY = Math.max(...allBounds.map(b => b.maxY));
+            
+            const padding = Math.max(maxX - minX, maxY - minY) * 0.2;
+            const viewBoxX = minX - padding;
+            const viewBoxY = minY - padding;
+            const viewBoxWidth = (maxX - minX) + (padding * 2);
+            const viewBoxHeight = (maxY - minY) + (padding * 2);
+            
+            const animationValues = collectedVariations.join(';') + ';' + collectedVariations[0];
+            const numFrames = collectedVariations.length + 1;
+            const keyTimes = Array.from({length: numFrames}, (_, i) => (i / (numFrames - 1)).toFixed(3)).join(';');
+            
+            // Get animation speed settings
+            const speedMultiplier = parseFloat(document.getElementById('animationSpeed').value);
+            const baseDuration = 5.0; // Base duration in seconds
+            const morphDuration = (baseDuration / speedMultiplier).toFixed(1);
+            const colorDuration = (12.0 / speedMultiplier).toFixed(1);
+            const patternDuration = (4.0 / speedMultiplier).toFixed(1);
+            
+            // Generate pattern if enabled
+            let patternHTML = '';
+            let clipPathHTML = '';
+            
+            if (document.getElementById('includePattern').checked) {
+                const patternType = document.getElementById('patternType').value;
+                const density = parseFloat(document.getElementById('patternDensity').value);
+                const opacity = parseFloat(document.getElementById('patternOpacity').value);
+                
+                const bounds = { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight };
+                let patternElements = PatternGenerator.generatePattern(patternType, bounds, density, opacity);
+                
+                // Update pattern animations with speed control
+                if (patternType === 'stars') {
+                    patternElements = patternElements.replace(/animation-duration: ([\d.]+)s/g, (match, duration) => {
+                        const newDuration = (parseFloat(duration) / speedMultiplier).toFixed(1);
+                        return `animation-duration: ${newDuration}s`;
+                    });
+                } else if (patternType === 'circles') {
+                    patternElements = patternElements.replace(/dur="([\d.]+)s"/g, (match, duration) => {
+                        const newDuration = (parseFloat(duration) / speedMultiplier).toFixed(1);
+                        return `dur="${newDuration}s"`;
+                    });
+                }
+                
+                patternHTML = `
+    <g clip-path="url(#morphClip)" opacity="0.9">
+        ${patternElements}
+    </g>`;
+                
+                clipPathHTML = `
+                <clipPath id="morphClip">
+                    <path class="morphing-shape">
+                        <animate 
+                            attributeName="d" 
+                            dur="${morphDuration}s" 
+                            repeatCount="indefinite"
+                            values="${animationValues}"
+                            keyTimes="${keyTimes}"
+                            calcMode="spline"
+                            keySplines="${Array.from({length: numFrames - 1}, () => '0.4 0 0.6 1').join(';')}"
+                        />
+                    </path>
+                </clipPath>`;
+            }
+            
+            const lighterColor = adjustBrightness(globalColor, 20);
+            const darkerColor = adjustBrightness(globalColorSecondary, -10);
+            
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}" width="100%" height="100%">
+                <defs>
+                    <style>
+                        <![CDATA[
+                        .morphing-shape { 
+                            fill: url(#morphGradient);
+                        }
+                        .star { 
+                            fill: rgba(255,255,255,0.9); 
+                            opacity: 0.7;
+                        }
+                        .twinkle { 
+                            animation: twinkle ${(2.0 / speedMultiplier).toFixed(1)}s ease-in-out infinite alternate;
+                        }
+                        .pattern-element {
+                            animation: patternFloat ${(3.0 / speedMultiplier).toFixed(1)}s ease-in-out infinite;
+                        }
+                        @keyframes twinkle { 
+                            0% { opacity: 0.2; transform: scale(0.6); } 
+                            100% { opacity: 1; transform: scale(1.4); } 
+                        }
+                        @keyframes patternFloat {
+                            0%, 100% { transform: translateY(0px); }
+                            50% { transform: translateY(-2px); }
+                        }
+                        ]]>
+                    </style>
+                    <radialGradient id="morphGradient" cx="40%" cy="30%" r="80%">
+                        <stop offset="0%" style="stop-color:${globalColor};stop-opacity:1">
+                            <animate attributeName="stop-color" dur="${colorDuration}s" repeatCount="indefinite" 
+                                values="${globalColor};${lighterColor};${globalColorSecondary};${darkerColor};${globalColor}" />
+                        </stop>
+                        <stop offset="100%" style="stop-color:${globalColorSecondary};stop-opacity:0.85">
+                            <animate attributeName="stop-color" dur="${colorDuration}s" repeatCount="indefinite" 
+                                values="${globalColorSecondary};${darkerColor};${lighterColor};${globalColor};${globalColorSecondary}" />
+                        </stop>
+                    </radialGradient>
+                    ${clipPathHTML}
+                </defs>
+                
+                <!-- Main morphing blob -->
+                <path class="morphing-shape">
+                    <animate 
+                        attributeName="d" 
+                        dur="${morphDuration}s" 
+                        repeatCount="indefinite"
+                        values="${animationValues}"
+                        keyTimes="${keyTimes}"
+                        calcMode="spline"
+                        keySplines="${Array.from({length: numFrames - 1}, () => '0.4 0 0.6 1').join(';')}"
+                    />
+                </path>
+                
+                <!-- Pattern overlay -->${patternHTML}
+            </svg>`;
+        }
+        
+        function downloadVariation() {
+            if (!currentVariation) return;
+            
+            const bounds = calculateBounds(currentVariation);
+            const padding = Math.max(bounds.width, bounds.height) * 0.1;
+            
+            const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${bounds.minX - padding} ${bounds.minY - padding} ${bounds.width + padding * 2} ${bounds.height + padding * 2}" width="800" height="600">
+                <defs>
+                    <linearGradient id="downloadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:${globalColor};stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:${globalColorSecondary};stop-opacity:0.8" />
+                    </linearGradient>
+                </defs>
+                <path d="${currentVariation}" fill="url(#downloadGrad)" stroke="none"/>
+            </svg>`;
+            
+            const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `smooth-blob-variation-${variationCounter}.svg`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showSuccess(`Downloaded smooth variation #${variationCounter}!`);
+        }
+        
+        function downloadAnimation() {
+            if (collectedVariations.length < 2) return;
+            
+            const animationSVG = generateAnimation();
+            const blob = new Blob([animationSVG], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            
+            const includePattern = document.getElementById('includePattern').checked;
+            const patternType = document.getElementById('patternType').value;
+            const speed = parseFloat(document.getElementById('animationSpeed').value);
+            
+            let filename = `smooth-blob-animation-${collectedVariations.length}variations`;
+            if (includePattern) {
+                filename += `-with-${patternType}`;
+            }
+            if (speed !== 1.0) {
+                filename += `-${speed}x-speed`;
+            }
+            filename += '.svg';
+            
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            let message = `📥 Downloaded animated SVG with ${collectedVariations.length} variations`;
+            if (includePattern) {
+                message += ` and ${patternType} pattern`;
+            }
+            if (speed !== 1.0) {
+                message += ` at ${speed}x speed`;
+            }
+            message += '!';
+            
+            showSuccess(message);
+        }
+        
+        function enableControls() {
+            document.getElementById('generateBtn').disabled = false;
+            document.getElementById('batchBtn').disabled = false;
+        }
+        
+        function resetAll() {
+            originalPath = '';
+            originalPoints = [];
+            currentVariation = '';
+            variationCounter = 0;
+            collectedVariations = [];
+            
+            // Reset colors
+            globalColor = '#667eea';
+            globalColorSecondary = '#764ba2';
+            document.getElementById('colorPicker').value = globalColor;
+            updateColorInput(globalColor);
+            document.getElementById('currentColorDisplay').textContent = globalColor;
+            
+            document.getElementById('originalPreview').innerHTML = '<div style="text-align: center; color: #6c757d;">Upload an SVG to see preview</div>';
+            document.getElementById('variationDisplay').innerHTML = '<div style="text-align: center; color: #6c757d;">Upload an SVG and hit "Generate Wild Variation"<br>to see some actual crazy changes!</div>';
+            document.getElementById('animationPreview').style.display = 'none';
+            
+            ['generateBtn', 'batchBtn', 'downloadBtn', 'collectBtn', 'animateBtn'].forEach(id => {
+                document.getElementById(id).disabled = true;
+            });
+            
+            document.getElementById('fileInput').value = '';
+            updateCollectionStatus();
+            
+            showSuccess('Reset complete! Upload a new SVG to start making smooth variations.');
+        }
+        
+        function showError(message) {
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error';
+            errorDiv.textContent = message;
+            document.querySelector('.upload-section').appendChild(errorDiv);
+            setTimeout(() => errorDiv.remove(), 5000);
+        }
+        
+        function showSuccess(message) {
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success';
+            successDiv.textContent = message;
+            document.querySelector('.upload-section').appendChild(successDiv);
+            setTimeout(() => successDiv.remove(), 3000);
+        }
+    </script>
+</body>
+</html>
