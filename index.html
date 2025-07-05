@@ -257,7 +257,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🎯 Actually Working Blob Generator</h1>
+        <h1>🌊 Smooth Flow Blob Generator</h1>
         
         <div class="main-content">
             <div class="upload-section">
@@ -305,49 +305,47 @@
                 </div>
                 
                 <div class="controls">
-                    <h3 style="margin-bottom: 15px; color: #1976d2;">🎛️ Variation Controls</h3>
+                    <h3 style="margin-bottom: 15px; color: #1976d2;">🌊 Flow Animation Controls</h3>
                     
                     <div class="control-group">
-                        <label>Algorithm:</label>
-                        <select id="algorithmSelect" class="algorithm-select">
-                            <option value="chaos">Chaos Mode (Random Fun)</option>
-                            <option value="waves">Wave Distortion</option>
-                            <option value="ripples">Ripple Effect</option>
-                            <option value="stretch">Stretch & Squeeze</option>
-                            <option value="wobble">Wobble Deformation</option>
-                            <option value="spikes">Spike Generator</option>
+                        <label>Flow Style:</label>
+                        <select id="flowStyle" class="algorithm-select">
+                            <option value="gentle">Gentle Flow (Water-like)</option>
+                            <option value="dynamic">Dynamic Flow (Lava-like)</option>
+                            <option value="rhythmic">Rhythmic Flow (Breathing)</option>
+                            <option value="chaotic">Chaotic Flow (Storm-like)</option>
                         </select>
                     </div>
                     
                     <div class="control-group">
-                        <label>Intensity (How crazy?):</label>
-                        <input type="range" id="intensityControl" min="0.1" max="1.0" step="0.1" value="0.4">
-                        <div class="value-display" id="intensityValue">40%</div>
+                        <label>Flow Intensity:</label>
+                        <input type="range" id="flowIntensity" min="0.1" max="1.0" step="0.1" value="0.6">
+                        <div class="value-display" id="flowIntensityValue">60%</div>
                     </div>
                     
                     <div class="control-group">
-                        <label>Randomness:</label>
-                        <input type="range" id="randomnessControl" min="0.1" max="1.0" step="0.1" value="0.6">
-                        <div class="value-display" id="randomnessValue">60%</div>
+                        <label>Flow Smoothness:</label>
+                        <input type="range" id="flowSmoothness" min="0.3" max="1.0" step="0.1" value="0.7">
+                        <div class="value-display" id="flowSmoothnessValue">70%</div>
                     </div>
                 </div>
                 
                 <button class="btn" id="generateBtn" onclick="generateVariation()" disabled>
-                    🎲 Generate Wild Variation
+                    🎲 Generate Single Variation
                 </button>
-                <button class="btn btn-secondary btn-small" onclick="generateBatch()" disabled id="batchBtn">
-                    ⚡ Generate 5 Random Ones
+                <button class="btn btn-secondary btn-small" onclick="generateFlowSequence()" disabled id="batchBtn">
+                    🌊 Generate Smooth Flow (3 frames)
                 </button>
                 <button class="btn btn-secondary btn-small" onclick="resetAll()">🔄 Reset</button>
             </div>
             
             <div class="variation-section">
-                <h2 class="section-title">✨ Your Crazy Variation</h2>
+                <h2 class="section-title">✨ Your Flow Variation</h2>
                 
                 <div class="variation-display" id="variationDisplay">
                     <div style="text-align: center; color: #6c757d;">
-                        Upload an SVG and hit "Generate Wild Variation"<br>
-                        to see some actual crazy changes!
+                        Upload an SVG and generate variations<br>
+                        to see smooth flowing animations!
                     </div>
                 </div>
                 
@@ -356,8 +354,8 @@
                 </button>
                 
                 <div class="status-info">
-                    <strong>🎬 Animation Collection:</strong><br>
-                    <span id="collectionStatus">No variations collected yet</span><br><br>
+                    <strong>🎬 Flow Animation:</strong><br>
+                    <span id="collectionStatus">No flow sequence generated yet</span><br><br>
                     
                     <div style="margin-bottom: 15px;">
                         <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
@@ -408,7 +406,7 @@
                                 <span id="speedValue" style="font-size: 0.85em; color: #495057; font-family: monospace; font-weight: bold;">1.0x Normal Speed</span>
                             </div>
                             <div style="font-size: 0.75em; color: #6c757d; text-align: center; margin-top: 3px;">
-                                Duration: <span id="durationDisplay">5.0s</span> per cycle
+                                Duration: <span id="durationDisplay">4.0s</span> per cycle
                             </div>
                         </div>
                     </div>
@@ -417,15 +415,15 @@
                         ➕ Collect This One
                     </button>
                     <button class="btn btn-secondary btn-small" onclick="createAnimation()" disabled id="animateBtn">
-                        🎭 Make Animation
+                        🎭 Make Flow Animation
                     </button>
                 </div>
                 
                 <div id="animationPreview" style="display: none; background: white; border-radius: 10px; padding: 15px; margin-top: 15px; min-height: 200px;">
-                    <div style="text-align: center; margin-bottom: 10px; font-weight: bold; color: #495057;">🎭 Animation Preview</div>
+                    <div style="text-align: center; margin-bottom: 10px; font-weight: bold; color: #495057;">🌊 Flow Animation Preview</div>
                     <div id="animationDisplay" style="width: 100%; height: 180px; display: flex; align-items: center; justify-content: center;"></div>
                     <button class="btn btn-secondary btn-small" onclick="downloadAnimation()" style="margin-top: 10px;">
-                        📥 Download Animated SVG
+                        📥 Download Flow Animation
                     </button>
                 </div>
             </div>
@@ -462,8 +460,8 @@
             uploadArea.addEventListener('dragleave', handleDragLeave);
             fileInput.addEventListener('change', handleFileSelect);
             
-            document.getElementById('intensityControl').addEventListener('input', updateControlDisplays);
-            document.getElementById('randomnessControl').addEventListener('input', updateControlDisplays);
+            document.getElementById('flowIntensity').addEventListener('input', updateControlDisplays);
+            document.getElementById('flowSmoothness').addEventListener('input', updateControlDisplays);
             
             // Color controls
             document.getElementById('colorPicker').addEventListener('change', (e) => updateGlobalColor(e.target.value));
@@ -487,7 +485,7 @@
         
         function updateSpeedDisplay() {
             const speed = parseFloat(document.getElementById('animationSpeed').value);
-            const baseDuration = 5.0; // Base duration in seconds
+            const baseDuration = 4.0; // Shorter duration works better with 3 frames
             const actualDuration = (baseDuration / speed).toFixed(1);
             
             document.getElementById('speedValue').textContent = `${speed}x ${speed === 1.0 ? 'Normal' : speed < 1.0 ? 'Slower' : 'Faster'} Speed`;
@@ -940,11 +938,11 @@
         }
 
         function updateControlDisplays() {
-            const intensity = document.getElementById('intensityControl').value;
-            const randomness = document.getElementById('randomnessControl').value;
+            const intensity = document.getElementById('flowIntensity').value;
+            const smoothness = document.getElementById('flowSmoothness').value;
             
-            document.getElementById('intensityValue').textContent = `${(intensity * 100).toFixed(0)}%`;
-            document.getElementById('randomnessValue').textContent = `${(randomness * 100).toFixed(0)}%`;
+            document.getElementById('flowIntensityValue').textContent = `${(intensity * 100).toFixed(0)}%`;
+            document.getElementById('flowSmoothnessValue').textContent = `${(smoothness * 100).toFixed(0)}%`;
         }
         
         function handleDragOver(e) {
@@ -1005,7 +1003,7 @@
                 showOriginalPreview(svgContent);
                 enableControls();
                 
-                showSuccess(`Loaded! Found ${originalPoints.length} points. Ready to make some crazy variations!`);
+                showSuccess(`Loaded! Found ${originalPoints.length} points. Ready to make smooth flow variations!`);
             } catch (error) {
                 showError(`Error: ${error.message}`);
             }
@@ -1104,37 +1102,15 @@
             if (originalPoints.length === 0) return;
             
             variationCounter++;
-            const algorithm = document.getElementById('algorithmSelect').value;
-            const intensity = parseFloat(document.getElementById('intensityControl').value);
-            const randomness = parseFloat(document.getElementById('randomnessControl').value);
+            const flowStyle = document.getElementById('flowStyle').value;
+            const intensity = parseFloat(document.getElementById('flowIntensity').value);
+            const smoothness = parseFloat(document.getElementById('flowSmoothness').value);
             
-            let deformedPoints;
+            let deformedPoints = applyFlowDeformation(originalPoints, flowStyle, intensity, smoothness, variationCounter);
             
-            switch (algorithm) {
-                case 'chaos':
-                    deformedPoints = applyChaos(originalPoints, intensity, randomness);
-                    break;
-                case 'waves':
-                    deformedPoints = applyWaves(originalPoints, intensity, randomness);
-                    break;
-                case 'ripples':
-                    deformedPoints = applyRipples(originalPoints, intensity, randomness);
-                    break;
-                case 'stretch':
-                    deformedPoints = applyStretch(originalPoints, intensity, randomness);
-                    break;
-                case 'wobble':
-                    deformedPoints = applyWobble(originalPoints, intensity, randomness);
-                    break;
-                case 'spikes':
-                    deformedPoints = applySpikes(originalPoints, intensity, randomness);
-                    break;
-                default:
-                    deformedPoints = applyChaos(originalPoints, intensity, randomness);
-            }
-            
-            // Apply multiple smoothing passes for natural curves
-            deformedPoints = smoothPoints(deformedPoints, 3);
+            // Apply extra smoothing based on smoothness setting
+            const smoothingPasses = Math.floor(smoothness * 5) + 2;
+            deformedPoints = smoothPoints(deformedPoints, smoothingPasses);
             
             currentVariation = pointsToSmoothPath(deformedPoints);
             showVariation();
@@ -1142,95 +1118,106 @@
             document.getElementById('downloadBtn').disabled = false;
             document.getElementById('collectBtn').disabled = false;
             
-            showSuccess(`Generated smooth ${algorithm} variation #${variationCounter}!`);
+            showSuccess(`Generated smooth ${flowStyle} variation #${variationCounter}!`);
         }
         
-        function applyChaos(points, intensity, randomness) {
-            const seed = variationCounter * 123.456;
-            return points.map((point, index) => {
-                const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
-                const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
-                
-                // Smoother multiple random effects
-                const chaos1 = Math.sin(angle * 4 + seed) * intensity * 0.25;
-                const chaos2 = Math.cos(angle * 2.5 + seed * 1.7) * intensity * 0.2;
-                const chaos3 = Math.sin(angle * 6.5 + index * 0.3 + seed) * intensity * 0.15;
-                
-                // Smoother random factor
-                const randomBase = seededRandom(seed + index * 0.1);
-                const randomFactor = (randomBase - 0.5) * randomness * intensity * 0.3;
-                
-                const newRadius = radius * (1 + chaos1 + chaos2 + chaos3 + randomFactor);
-                
-                return {
-                    x: shapeCenter.x + newRadius * Math.cos(angle),
-                    y: shapeCenter.y + newRadius * Math.sin(angle)
-                };
-            });
-        }
-        
-        function applyWaves(points, intensity, randomness) {
-            const seed = variationCounter * 789.123;
-            const waveFreq = 1.5 + randomness * 4; // Smoother frequency range
+        // NEW: Generate smooth flow sequence for water-like animations
+        function generateFlowSequence() {
+            if (!originalPoints.length) return;
             
-            return points.map((point, index) => {
-                const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
-                const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
+            collectedVariations = [];
+            const flowStyle = document.getElementById('flowStyle').value;
+            const intensity = parseFloat(document.getElementById('flowIntensity').value);
+            const smoothness = parseFloat(document.getElementById('flowSmoothness').value);
+            
+            // Generate 3 progressive variations with optimal spacing for smooth flow
+            const numFrames = 3;
+            for (let i = 0; i < numFrames; i++) {
+                variationCounter++;
                 
-                const wave = Math.sin(angle * waveFreq + seed) * intensity * 0.3;
-                const subWave = Math.cos(angle * waveFreq * 1.3 + seed * 1.4) * intensity * 0.15;
-                const microWave = Math.sin(angle * waveFreq * 2.1 + seed * 0.7) * intensity * 0.1;
+                // Progressive phase for smooth transitions - complete cycle over 3 frames
+                const phase = (i / numFrames) * Math.PI * 2;
                 
-                const newRadius = radius * (1 + wave + subWave + microWave);
+                let deformedPoints = applyOptimalFlowDeformation(
+                    originalPoints, 
+                    flowStyle, 
+                    intensity, 
+                    smoothness, 
+                    phase,
+                    i,
+                    numFrames
+                );
                 
-                return {
-                    x: shapeCenter.x + newRadius * Math.cos(angle),
-                    y: shapeCenter.y + newRadius * Math.sin(angle)
-                };
-            });
+                // Apply extensive smoothing for flow-like motion
+                const smoothingPasses = Math.floor(smoothness * 8) + 4;
+                deformedPoints = smoothPoints(deformedPoints, smoothingPasses);
+                
+                const variation = pointsToSmoothPath(deformedPoints);
+                collectedVariations.push(variation);
+            }
+            
+            // Show the last variation as preview
+            currentVariation = collectedVariations[collectedVariations.length - 1];
+            showVariation();
+            updateCollectionStatus();
+            
+            document.getElementById('downloadBtn').disabled = false;
+            document.getElementById('collectBtn').disabled = false;
+            document.getElementById('animateBtn').disabled = false;
+            
+            showSuccess(`🌊 Generated optimal flow sequence! ${numFrames} variations ready for smooth water-like animation.`);
         }
         
-        function applyWobble(points, intensity, randomness) {
-            const seed = variationCounter * 345.678;
-            
+        // NEW: Optimal flow deformation for perfect 3-frame water-like animations
+        function applyOptimalFlowDeformation(points, flowStyle, intensity, smoothness, phase, frameIndex, totalFrames) {
             return points.map((point, index) => {
                 const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
                 const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
                 
-                // More gradual wobble with better continuity
-                const wobble1 = Math.sin(angle * 3.2 + seed + index * 0.05) * intensity * 0.2;
-                const wobble2 = Math.cos(angle * 4.7 + seed * 1.3 + index * 0.08) * intensity * 0.15;
-                const wobble3 = Math.sin(angle * 1.8 + seed * 2.1 + index * 0.03) * intensity * 0.12;
+                // Optimal deformation - visible movement but still smooth (12% max instead of 5%)
+                let deformation = 0;
+                const maxDeformation = intensity * 0.12; // Sweet spot for 3-frame animation
                 
-                // Smoother random wobble
-                const randomWobble = Math.sin(seededRandom(seed + index * 0.2) * Math.PI * 2) * randomness * intensity * 0.25;
-                
-                const newRadius = radius * (1 + wobble1 + wobble2 + wobble3 + randomWobble);
-                
-                return {
-                    x: shapeCenter.x + newRadius * Math.cos(angle),
-                    y: shapeCenter.y + newRadius * Math.sin(angle)
-                };
-            });
-        }
-        
-        function applyRipples(points, intensity, randomness) {
-            const seed = variationCounter * 456.789;
-            const rippleCount = Math.floor(2 + randomness * 4); // 2-6 ripples
-            
-            return points.map((point, index) => {
-                const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
-                const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
-                
-                let rippleEffect = 0;
-                for (let i = 0; i < rippleCount; i++) {
-                    const rippleAngle = (i / rippleCount) * Math.PI * 2;
-                    const rippleDistance = Math.abs(angle - rippleAngle);
-                    const ripple = Math.exp(-rippleDistance * 2) * Math.sin(rippleDistance * 10 + seed) * intensity * 0.3;
-                    rippleEffect += ripple;
+                switch (flowStyle) {
+                    case 'gentle':
+                        // Gentle, water-like flow with visible but smooth waves
+                        deformation = Math.sin(angle * 2.8 + phase) * maxDeformation * 0.8 +
+                                     Math.sin(angle * 4.3 + phase * 1.4) * maxDeformation * 0.6 +
+                                     Math.sin(angle * 1.9 + phase * 0.8) * maxDeformation * 0.4;
+                        break;
+                        
+                    case 'dynamic':
+                        // More dynamic with noticeable flow
+                        deformation = Math.sin(angle * 3.4 + phase) * maxDeformation * 0.9 +
+                                     Math.cos(angle * 5.2 + phase * 1.5) * maxDeformation * 0.7 +
+                                     Math.sin(angle * 2.1 + phase * 0.9) * maxDeformation * 0.5;
+                        break;
+                        
+                    case 'rhythmic':
+                        // Breathing-like, visible pulsing motion
+                        const breathingPhase = phase + index * 0.08;
+                        deformation = Math.sin(breathingPhase) * maxDeformation * 1.0 +
+                                     Math.sin(angle * 7.1 + breathingPhase * 0.4) * maxDeformation * 0.4;
+                        break;
+                        
+                    case 'chaotic':
+                        // More variation but maintains smooth flow
+                        deformation = Math.sin(angle * 4.7 + phase) * maxDeformation * 0.7 +
+                                     Math.cos(angle * 3.3 + phase * 1.2) * maxDeformation * 0.6 +
+                                     Math.sin(angle * 6.9 + phase * 0.9) * maxDeformation * 0.5 +
+                                     Math.cos(angle * 2.2 + phase * 1.7) * maxDeformation * 0.3;
+                        break;
                 }
                 
-                const newRadius = radius * (1 + rippleEffect);
+                // Apply smoothness factor
+                deformation *= smoothness;
+                
+                // Add subtle progressive variation for perfect 3-frame looping
+                const loopPhase = (frameIndex / totalFrames) * Math.PI * 2;
+                const progressiveVariation = Math.sin(loopPhase + angle * 0.7) * maxDeformation * 0.3;
+                deformation += progressiveVariation;
+                
+                const newRadius = radius * (1 + deformation);
                 
                 return {
                     x: shapeCenter.x + newRadius * Math.cos(angle),
@@ -1239,84 +1226,35 @@
             });
         }
         
-        function applyStretch(points, intensity, randomness) {
-            const seed = variationCounter * 234.567;
-            const stretchAngle = seededRandom(seed) * Math.PI * 2;
-            const stretchRatio = 1 + intensity * (0.5 + randomness * 0.8);
-            
-            return points.map((point) => {
-                // Translate to center
-                let x = point.x - shapeCenter.x;
-                let y = point.y - shapeCenter.y;
-                
-                // Rotate to stretch axis
-                const cos = Math.cos(-stretchAngle);
-                const sin = Math.sin(-stretchAngle);
-                const rotX = x * cos - y * sin;
-                const rotY = x * sin + y * cos;
-                
-                // Apply stretch
-                const stretchedX = rotX * stretchRatio;
-                const stretchedY = rotY / Math.sqrt(stretchRatio);
-                
-                // Rotate back
-                const finalX = stretchedX * cos - stretchedY * sin;
-                const finalY = stretchedX * sin + stretchedY * cos;
-                
-                return {
-                    x: finalX + shapeCenter.x,
-                    y: finalY + shapeCenter.y
-                };
-            });
-        }
-        
-        function applyWobble(points, intensity, randomness) {
-            const seed = variationCounter * 345.678;
-            
+        function applyFlowDeformation(points, flowStyle, intensity, smoothness, seed) {
             return points.map((point, index) => {
                 const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
                 const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
                 
-                // Complex wobble with multiple frequencies
-                const wobble1 = Math.sin(angle * 4 + seed + index * 0.1) * intensity * 0.25;
-                const wobble2 = Math.cos(angle * 6 + seed * 1.5 + index * 0.15) * intensity * 0.2;
-                const wobble3 = Math.sin(angle * 2 + seed * 2 + index * 0.05) * intensity * 0.15;
-                const randomWobble = (seededRandom(seed + index * 10) - 0.5) * randomness * intensity * 0.3;
+                let deformation = 0;
                 
-                const newRadius = radius * (1 + wobble1 + wobble2 + wobble3 + randomWobble);
-                
-                return {
-                    x: shapeCenter.x + newRadius * Math.cos(angle),
-                    y: shapeCenter.y + newRadius * Math.sin(angle)
-                };
-            });
-        }
-        
-        function applySpikes(points, intensity, randomness) {
-            const seed = variationCounter * 567.890;
-            const spikeCount = Math.floor(3 + randomness * 8); // 3-11 spikes
-            
-            return points.map((point, index) => {
-                const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
-                const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
-                
-                // Create spikes at regular intervals
-                const spikeAngle = Math.PI * 2 / spikeCount;
-                let spikeEffect = 0;
-                
-                for (let i = 0; i < spikeCount; i++) {
-                    const targetAngle = i * spikeAngle;
-                    let angleDiff = Math.abs(angle - targetAngle);
-                    if (angleDiff > Math.PI) angleDiff = Math.PI * 2 - angleDiff;
-                    
-                    const spikeWidth = 0.3 + randomness * 0.4;
-                    if (angleDiff < spikeWidth) {
-                        const spikeStrength = Math.cos(angleDiff / spikeWidth * Math.PI / 2);
-                        spikeEffect += spikeStrength * intensity * (0.4 + randomness * 0.4);
-                    }
+                switch (flowStyle) {
+                    case 'gentle':
+                        deformation = Math.sin(angle * 3 + seed * 0.1) * intensity * 0.2 +
+                                     Math.sin(angle * 5 + seed * 0.15) * intensity * 0.12;
+                        break;
+                    case 'dynamic':
+                        deformation = Math.sin(angle * 4 + seed * 0.1) * intensity * 0.25 +
+                                     Math.cos(angle * 6 + seed * 0.2) * intensity * 0.18;
+                        break;
+                    case 'rhythmic':
+                        deformation = Math.sin(angle * 2 + seed * 0.05) * intensity * 0.3 +
+                                     Math.sin(angle * 8 + seed * 0.1) * intensity * 0.15;
+                        break;
+                    case 'chaotic':
+                        deformation = Math.sin(angle * 5 + seed * 0.1) * intensity * 0.2 +
+                                     Math.cos(angle * 3.7 + seed * 0.15) * intensity * 0.18 +
+                                     Math.sin(angle * 7.3 + seed * 0.12) * intensity * 0.14;
+                        break;
                 }
                 
-                const newRadius = radius * (1 + spikeEffect);
+                deformation *= smoothness;
+                const newRadius = radius * (1 + deformation);
                 
                 return {
                     x: shapeCenter.x + newRadius * Math.cos(angle),
@@ -1435,8 +1373,11 @@
                 color2 = globalColorSecondary;
             }
             
+            const flowStyle = document.getElementById('flowStyle').value;
+            const flowName = document.getElementById('flowStyle').options[document.getElementById('flowStyle').selectedIndex].text;
+            
             display.innerHTML = `
-                <div class="variation-label">Smooth Variation #${variationCounter}</div>
+                <div class="variation-label">${flowName} #${variationCounter}</div>
                 <svg class="variation-svg" viewBox="${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}">
                     <defs>
                         <linearGradient id="grad${variationCounter}" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -1475,52 +1416,6 @@
             };
         }
         
-        function generateBatch() {
-            if (!originalPoints.length) return;
-            
-            collectedVariations = [];
-            for (let i = 0; i < 5; i++) {
-                variationCounter++;
-                
-                // Random settings for each variation
-                const algorithms = ['chaos', 'waves', 'ripples', 'stretch', 'wobble', 'spikes'];
-                document.getElementById('algorithmSelect').value = algorithms[Math.floor(Math.random() * algorithms.length)];
-                document.getElementById('intensityControl').value = 0.3 + Math.random() * 0.5;
-                document.getElementById('randomnessControl').value = 0.4 + Math.random() * 0.5;
-                updateControlDisplays();
-                
-                const algorithm = document.getElementById('algorithmSelect').value;
-                const intensity = parseFloat(document.getElementById('intensityControl').value);
-                const randomness = parseFloat(document.getElementById('randomnessControl').value);
-                
-                let deformedPoints;
-                switch (algorithm) {
-                    case 'chaos': deformedPoints = applyChaos(originalPoints, intensity, randomness); break;
-                    case 'waves': deformedPoints = applyWaves(originalPoints, intensity, randomness); break;
-                    case 'ripples': deformedPoints = applyRipples(originalPoints, intensity, randomness); break;
-                    case 'stretch': deformedPoints = applyStretch(originalPoints, intensity, randomness); break;
-                    case 'wobble': deformedPoints = applyWobble(originalPoints, intensity, randomness); break;
-                    case 'spikes': deformedPoints = applySpikes(originalPoints, intensity, randomness); break;
-                }
-                
-                // Apply smoothing for natural curves
-                deformedPoints = smoothPoints(deformedPoints, 3);
-                
-                const variation = pointsToSmoothPath(deformedPoints);
-                collectedVariations.push(variation);
-            }
-            
-            currentVariation = collectedVariations[collectedVariations.length - 1];
-            showVariation();
-            updateCollectionStatus();
-            
-            document.getElementById('downloadBtn').disabled = false;
-            document.getElementById('collectBtn').disabled = false;
-            document.getElementById('animateBtn').disabled = false;
-            
-            showSuccess(`Generated 5 smooth variations! Ready for animation.`);
-        }
-        
         function collectVariation() {
             if (!currentVariation) return;
             
@@ -1537,9 +1432,9 @@
         function updateCollectionStatus() {
             const status = document.getElementById('collectionStatus');
             if (collectedVariations.length === 0) {
-                status.textContent = 'No variations collected yet';
+                status.textContent = 'No flow sequence generated yet';
             } else {
-                status.textContent = `${collectedVariations.length} variations collected`;
+                status.textContent = `${collectedVariations.length} flow frames collected`;
             }
         }
         
@@ -1549,7 +1444,7 @@
                 return;
             }
             
-            const animationSVG = generateAnimation();
+            const animationSVG = generateFlowAnimation();
             const previewArea = document.getElementById('animationPreview');
             const displayArea = document.getElementById('animationDisplay');
             
@@ -1561,8 +1456,9 @@
             const patternName = document.getElementById('patternType').options[document.getElementById('patternType').selectedIndex].text;
             const speed = parseFloat(document.getElementById('animationSpeed').value);
             const duration = (5.0 / speed).toFixed(1);
+            const flowStyle = document.getElementById('flowStyle').value;
             
-            let message = `🎬 Animation ready with ${collectedVariations.length} variations`;
+            let message = `🌊 Smooth ${flowStyle} flow animation ready with ${collectedVariations.length} frames`;
             if (includePattern) {
                 message += ` and ${patternName} pattern`;
             }
@@ -1571,7 +1467,7 @@
             showSuccess(message);
         }
         
-        function generateAnimation() {
+        function generateFlowAnimation() {
             // Calculate overall bounds
             const allBounds = collectedVariations.map(v => calculateBounds(v));
             const minX = Math.min(...allBounds.map(b => b.minX));
@@ -1585,13 +1481,14 @@
             const viewBoxWidth = (maxX - minX) + (padding * 2);
             const viewBoxHeight = (maxY - minY) + (padding * 2);
             
+            // Create smooth looping animation by ensuring the sequence loops back to first frame
             const animationValues = collectedVariations.join(';') + ';' + collectedVariations[0];
             const numFrames = collectedVariations.length + 1;
             const keyTimes = Array.from({length: numFrames}, (_, i) => (i / (numFrames - 1)).toFixed(3)).join(';');
             
             // Get animation speed settings
             const speedMultiplier = parseFloat(document.getElementById('animationSpeed').value);
-            const baseDuration = 5.0; // Base duration in seconds
+            const baseDuration = 4.0; // Optimal duration for 3-frame animation
             const morphDuration = (baseDuration / speedMultiplier).toFixed(1);
             const colorDuration = (12.0 / speedMultiplier).toFixed(1);
             const patternDuration = (4.0 / speedMultiplier).toFixed(1);
@@ -1636,7 +1533,7 @@
                             values="${animationValues}"
                             keyTimes="${keyTimes}"
                             calcMode="spline"
-                            keySplines="${Array.from({length: numFrames - 1}, () => '0.4 0 0.6 1').join(';')}"
+                            keySplines="${Array.from({length: numFrames - 1}, () => '0.25 0.1 0.75 0.9').join(';')}"
                         />
                     </path>
                 </clipPath>`;
@@ -1644,6 +1541,9 @@
             
             const lighterColor = adjustBrightness(globalColor, 20);
             const darkerColor = adjustBrightness(globalColorSecondary, -10);
+            
+            // Use ultra-smooth spline for water-like flow (more gradual curves)
+            const splineValues = Array.from({length: numFrames - 1}, () => '0.25 0.1 0.75 0.9').join(';');
             
             return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}" width="100%" height="100%">
                 <defs>
@@ -1657,10 +1557,10 @@
                             opacity: 0.7;
                         }
                         .twinkle { 
-                            animation: twinkle ${(2.0 / speedMultiplier).toFixed(1)}s ease-in-out infinite alternate;
+                            animation: twinkle ${(2.5 / speedMultiplier).toFixed(1)}s ease-in-out infinite alternate;
                         }
                         .pattern-element {
-                            animation: patternFloat ${(3.0 / speedMultiplier).toFixed(1)}s ease-in-out infinite;
+                            animation: patternFloat ${(4.0 / speedMultiplier).toFixed(1)}s ease-in-out infinite;
                         }
                         @keyframes twinkle { 
                             0% { opacity: 0.2; transform: scale(0.6); } 
@@ -1694,7 +1594,7 @@
                         values="${animationValues}"
                         keyTimes="${keyTimes}"
                         calcMode="spline"
-                        keySplines="${Array.from({length: numFrames - 1}, () => '0.4 0 0.6 1').join(';')}"
+                        keySplines="${splineValues}"
                     />
                 </path>
                 
@@ -1707,6 +1607,8 @@
             
             const bounds = calculateBounds(currentVariation);
             const padding = Math.max(bounds.width, bounds.height) * 0.1;
+            
+            const flowStyle = document.getElementById('flowStyle').value;
             
             const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${bounds.minX - padding} ${bounds.minY - padding} ${bounds.width + padding * 2} ${bounds.height + padding * 2}" width="800" height="600">
                 <defs>
@@ -1722,17 +1624,17 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `smooth-blob-variation-${variationCounter}.svg`;
+            a.download = `flow-blob-${flowStyle}-variation-${variationCounter}.svg`;
             a.click();
             URL.revokeObjectURL(url);
             
-            showSuccess(`Downloaded smooth variation #${variationCounter}!`);
+            showSuccess(`Downloaded ${flowStyle} flow variation #${variationCounter}!`);
         }
         
         function downloadAnimation() {
             if (collectedVariations.length < 2) return;
             
-            const animationSVG = generateAnimation();
+            const animationSVG = generateFlowAnimation();
             const blob = new Blob([animationSVG], { type: 'image/svg+xml' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1741,8 +1643,9 @@
             const includePattern = document.getElementById('includePattern').checked;
             const patternType = document.getElementById('patternType').value;
             const speed = parseFloat(document.getElementById('animationSpeed').value);
+            const flowStyle = document.getElementById('flowStyle').value;
             
-            let filename = `smooth-blob-animation-${collectedVariations.length}variations`;
+            let filename = `smooth-flow-${flowStyle}-animation-${collectedVariations.length}frames`;
             if (includePattern) {
                 filename += `-with-${patternType}`;
             }
@@ -1755,7 +1658,7 @@
             a.click();
             URL.revokeObjectURL(url);
             
-            let message = `📥 Downloaded animated SVG with ${collectedVariations.length} variations`;
+            let message = `📥 Downloaded smooth ${flowStyle} flow animation with ${collectedVariations.length} frames`;
             if (includePattern) {
                 message += ` and ${patternType} pattern`;
             }
@@ -1787,7 +1690,7 @@
             document.getElementById('currentColorDisplay').textContent = globalColor;
             
             document.getElementById('originalPreview').innerHTML = '<div style="text-align: center; color: #6c757d;">Upload an SVG to see preview</div>';
-            document.getElementById('variationDisplay').innerHTML = '<div style="text-align: center; color: #6c757d;">Upload an SVG and hit "Generate Wild Variation"<br>to see some actual crazy changes!</div>';
+            document.getElementById('variationDisplay').innerHTML = '<div style="text-align: center; color: #6c757d;">Upload an SVG and generate variations<br>to see smooth flowing animations!</div>';
             document.getElementById('animationPreview').style.display = 'none';
             
             ['generateBtn', 'batchBtn', 'downloadBtn', 'collectBtn', 'animateBtn'].forEach(id => {
@@ -1797,7 +1700,7 @@
             document.getElementById('fileInput').value = '';
             updateCollectionStatus();
             
-            showSuccess('Reset complete! Upload a new SVG to start making smooth variations.');
+            showSuccess('Reset complete! Upload a new SVG to start making smooth flow variations.');
         }
         
         function showError(message) {
