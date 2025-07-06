@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Actually Working Blob Generator</title>
+    <title>Natural Flow Blob Generator</title>
     <style>
         * {
             box-sizing: border-box;
@@ -257,7 +257,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🌊 Smooth Flow Blob Generator</h1>
+        <h1>🌊 Natural Flow Blob Generator</h1>
         
         <div class="main-content">
             <div class="upload-section">
@@ -305,7 +305,7 @@
                 </div>
                 
                 <div class="controls">
-                    <h3 style="margin-bottom: 15px; color: #1976d2;">🌊 Flow Animation Controls</h3>
+                    <h3 style="margin-bottom: 15px; color: #1976d2;">🌊 Natural Flow Controls</h3>
                     
                     <div class="control-group">
                         <label>Flow Style:</label>
@@ -334,7 +334,7 @@
                     🎲 Generate Single Variation
                 </button>
                 <button class="btn btn-secondary btn-small" onclick="generateFlowSequence()" disabled id="batchBtn">
-                    🌊 Generate Smooth Flow (3 frames)
+                    🌊 Generate Natural Flow (3 frames)
                 </button>
                 <button class="btn btn-secondary btn-small" onclick="resetAll()">🔄 Reset</button>
             </div>
@@ -1148,8 +1148,8 @@
                     numFrames
                 );
                 
-                // Apply extensive smoothing for flow-like motion
-                const smoothingPasses = Math.floor(smoothness * 8) + 4;
+                // Apply moderate smoothing to preserve dramatic differences
+                const smoothingPasses = Math.floor(smoothness * 4) + 2;
                 deformedPoints = smoothPoints(deformedPoints, smoothingPasses);
                 
                 const variation = pointsToSmoothPath(deformedPoints);
@@ -1165,57 +1165,105 @@
             document.getElementById('collectBtn').disabled = false;
             document.getElementById('animateBtn').disabled = false;
             
-            showSuccess(`🌊 Generated optimal flow sequence! ${numFrames} variations ready for smooth water-like animation.`);
+            showSuccess(`🌊 Generated natural flow sequence! ${numFrames} dramatic variations ready for organic water-like animation.`);
         }
         
-        // NEW: Optimal flow deformation for perfect 3-frame water-like animations
+        // NEW: Natural dramatic flow deformation for organic water-like animations
         function applyOptimalFlowDeformation(points, flowStyle, intensity, smoothness, phase, frameIndex, totalFrames) {
             return points.map((point, index) => {
                 const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
                 const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
                 
-                // Optimal deformation - visible movement but still smooth (12% max instead of 5%)
+                // Dramatic deformation - trust spline interpolation for smoothness
                 let deformation = 0;
-                const maxDeformation = intensity * 0.12; // Sweet spot for 3-frame animation
+                const maxDeformation = intensity * 0.35; // Much more dramatic (35% instead of 12%)
                 
-                switch (flowStyle) {
-                    case 'gentle':
-                        // Gentle, water-like flow with visible but smooth waves
-                        deformation = Math.sin(angle * 2.8 + phase) * maxDeformation * 0.8 +
-                                     Math.sin(angle * 4.3 + phase * 1.4) * maxDeformation * 0.6 +
-                                     Math.sin(angle * 1.9 + phase * 0.8) * maxDeformation * 0.4;
+                // Create natural, organic variations based on frame
+                switch (frameIndex) {
+                    case 0: // Original-ish shape with gentle waves
+                        switch (flowStyle) {
+                            case 'gentle':
+                                deformation = Math.sin(angle * 2.3) * maxDeformation * 0.4 +
+                                             Math.sin(angle * 4.7 + Math.PI/3) * maxDeformation * 0.3 +
+                                             Math.sin(angle * 1.1 + Math.PI/6) * maxDeformation * 0.2;
+                                break;
+                            case 'dynamic':
+                                deformation = Math.sin(angle * 3.1) * maxDeformation * 0.6 +
+                                             Math.cos(angle * 5.2 + Math.PI/4) * maxDeformation * 0.4;
+                                break;
+                            case 'rhythmic':
+                                deformation = Math.sin(angle * 2.8) * maxDeformation * 0.5 +
+                                             Math.sin(angle * 6.1 + Math.PI/2) * maxDeformation * 0.3;
+                                break;
+                            case 'chaotic':
+                                deformation = Math.sin(angle * 4.3) * maxDeformation * 0.5 +
+                                             Math.cos(angle * 2.7 + Math.PI/3) * maxDeformation * 0.4 +
+                                             Math.sin(angle * 7.1 + Math.PI/8) * maxDeformation * 0.3;
+                                break;
+                        }
                         break;
                         
-                    case 'dynamic':
-                        // More dynamic with noticeable flow
-                        deformation = Math.sin(angle * 3.4 + phase) * maxDeformation * 0.9 +
-                                     Math.cos(angle * 5.2 + phase * 1.5) * maxDeformation * 0.7 +
-                                     Math.sin(angle * 2.1 + phase * 0.9) * maxDeformation * 0.5;
+                    case 1: // Dramatically different middle shape
+                        switch (flowStyle) {
+                            case 'gentle':
+                                // Create flowing, elongated shape
+                                const stretchFactor = Math.cos(angle * 1.5 + Math.PI/4);
+                                deformation = stretchFactor * maxDeformation * 0.8 +
+                                             Math.sin(angle * 3.8 + Math.PI) * maxDeformation * 0.5 +
+                                             Math.sin(angle * 1.7) * maxDeformation * 0.3;
+                                break;
+                            case 'dynamic':
+                                // Create angular, energetic shape
+                                deformation = Math.sin(angle * 5.2 + Math.PI/2) * maxDeformation * 0.9 +
+                                             Math.cos(angle * 2.1 + Math.PI) * maxDeformation * 0.6 +
+                                             Math.sin(angle * 7.3) * maxDeformation * 0.4;
+                                break;
+                            case 'rhythmic':
+                                // Create pulsing, breathing shape
+                                const breathe = Math.sin(angle * 1.0) * 0.8 + 0.2;
+                                deformation = breathe * maxDeformation * 0.7 +
+                                             Math.sin(angle * 4.5 + Math.PI/3) * maxDeformation * 0.4;
+                                break;
+                            case 'chaotic':
+                                // Create complex, irregular shape
+                                deformation = Math.sin(angle * 6.7 + Math.PI/6) * maxDeformation * 0.7 +
+                                             Math.cos(angle * 3.4 + Math.PI/2) * maxDeformation * 0.6 +
+                                             Math.sin(angle * 8.9 + Math.PI/4) * maxDeformation * 0.4 +
+                                             Math.cos(angle * 1.8 + Math.PI) * maxDeformation * 0.3;
+                                break;
+                        }
                         break;
                         
-                    case 'rhythmic':
-                        // Breathing-like, visible pulsing motion
-                        const breathingPhase = phase + index * 0.08;
-                        deformation = Math.sin(breathingPhase) * maxDeformation * 1.0 +
-                                     Math.sin(angle * 7.1 + breathingPhase * 0.4) * maxDeformation * 0.4;
-                        break;
-                        
-                    case 'chaotic':
-                        // More variation but maintains smooth flow
-                        deformation = Math.sin(angle * 4.7 + phase) * maxDeformation * 0.7 +
-                                     Math.cos(angle * 3.3 + phase * 1.2) * maxDeformation * 0.6 +
-                                     Math.sin(angle * 6.9 + phase * 0.9) * maxDeformation * 0.5 +
-                                     Math.cos(angle * 2.2 + phase * 1.7) * maxDeformation * 0.3;
+                    case 2: // Different variation that flows back to frame 0
+                        switch (flowStyle) {
+                            case 'gentle':
+                                deformation = Math.sin(angle * 2.9 + Math.PI/2) * maxDeformation * 0.5 +
+                                             Math.cos(angle * 4.1 + Math.PI/4) * maxDeformation * 0.4 +
+                                             Math.sin(angle * 1.3 + Math.PI) * maxDeformation * 0.2;
+                                break;
+                            case 'dynamic':
+                                deformation = Math.cos(angle * 3.7 + Math.PI/3) * maxDeformation * 0.7 +
+                                             Math.sin(angle * 5.8 + Math.PI/6) * maxDeformation * 0.5;
+                                break;
+                            case 'rhythmic':
+                                deformation = Math.sin(angle * 2.4 + Math.PI/4) * maxDeformation * 0.6 +
+                                             Math.sin(angle * 5.7 + Math.PI) * maxDeformation * 0.4;
+                                break;
+                            case 'chaotic':
+                                deformation = Math.sin(angle * 4.9 + Math.PI/5) * maxDeformation * 0.6 +
+                                             Math.cos(angle * 2.3 + Math.PI/2) * maxDeformation * 0.5 +
+                                             Math.sin(angle * 6.8 + Math.PI/7) * maxDeformation * 0.3;
+                                break;
+                        }
                         break;
                 }
                 
-                // Apply smoothness factor
-                deformation *= smoothness;
+                // Apply smoothness as a multiplier but keep dramatic changes
+                deformation *= (0.7 + smoothness * 0.3); // Less impact from smoothness
                 
-                // Add subtle progressive variation for perfect 3-frame looping
-                const loopPhase = (frameIndex / totalFrames) * Math.PI * 2;
-                const progressiveVariation = Math.sin(loopPhase + angle * 0.7) * maxDeformation * 0.3;
-                deformation += progressiveVariation;
+                // Add some natural asymmetry based on position
+                const asymmetry = Math.sin(index * 0.3 + frameIndex * 1.2) * maxDeformation * 0.15;
+                deformation += asymmetry;
                 
                 const newRadius = radius * (1 + deformation);
                 
@@ -1533,7 +1581,7 @@
                             values="${animationValues}"
                             keyTimes="${keyTimes}"
                             calcMode="spline"
-                            keySplines="${Array.from({length: numFrames - 1}, () => '0.25 0.1 0.75 0.9').join(';')}"
+                            keySplines="${Array.from({length: numFrames - 1}, () => '0.4 0 0.6 1').join(';')}"
                         />
                     </path>
                 </clipPath>`;
