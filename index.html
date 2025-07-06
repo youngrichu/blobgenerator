@@ -531,19 +531,31 @@
             
             static generateStars(bounds, density, opacity) {
                 const { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight } = bounds;
-                const numStars = Math.floor((15 + Math.random() * 20) * density);
+                const baseCount = 9; // Match the clean example
+                const numStars = Math.floor(baseCount * density);
                 const starElements = [];
                 
+                // Calculate center and spread for better distribution within shape
+                const centerX = viewBoxX + viewBoxWidth / 2;
+                const centerY = viewBoxY + viewBoxHeight / 2;
+                const maxRadius = Math.min(viewBoxWidth, viewBoxHeight) * 0.35; // 70% of shape area
+                
                 for (let i = 0; i < numStars; i++) {
-                    const x = viewBoxX + Math.random() * viewBoxWidth;
-                    const y = viewBoxY + Math.random() * viewBoxHeight;
-                    const radius = (0.8 + Math.random() * 1.8) * density;
-                    const shouldTwinkle = Math.random() > 0.3;
-                    const delay = Math.random() * 4;
-                    const duration = 1.5 + Math.random() * 2;
+                    // Use polar distribution centered on shape for better coverage
+                    const angle = (Math.random() * 2 * Math.PI);
+                    const radius = Math.random() * maxRadius;
+                    const x = centerX + Math.cos(angle) * radius + (Math.random() - 0.5) * viewBoxWidth * 0.3;
+                    const y = centerY + Math.sin(angle) * radius + (Math.random() - 0.5) * viewBoxHeight * 0.3;
+                    
+                    // Ensure stars stay within bounds
+                    const clampedX = Math.max(viewBoxX + 20, Math.min(viewBoxX + viewBoxWidth - 20, x));
+                    const clampedY = Math.max(viewBoxY + 20, Math.min(viewBoxY + viewBoxHeight - 20, y));
+                    
+                    const starRadius = (0.7 + Math.random() * 0.8) * density; // 0.7-1.5 range like the example
+                    const shouldTwinkle = i % 2 === 0; // About 50% twinkle (every other one)
                     
                     starElements.push(`
-        <circle class="star${shouldTwinkle ? ' twinkle' : ''}" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${radius.toFixed(1)}" style="animation-delay: ${delay.toFixed(1)}s; animation-duration: ${duration.toFixed(1)}s;" opacity="${opacity}"/>`);
+        <circle class="star${shouldTwinkle ? ' twinkle' : ''}" cx="${clampedX.toFixed(0)}" cy="${clampedY.toFixed(0)}" r="${starRadius.toFixed(1)}" opacity="${opacity}"/>`);
                 }
                 
                 return starElements.join('');
@@ -1067,8 +1079,8 @@
                 }
             });
             
-            // Make sure we have enough points
-            while (points.length < 20) {
+            // Keep point count reasonable for smooth paths
+            while (points.length < 16) {
                 const newPoints = [];
                 for (let i = 0; i < points.length; i++) {
                     newPoints.push(points[i]);
@@ -1078,8 +1090,13 @@
                         y: (points[i].y + next.y) / 2
                     });
                 }
-                points.length = 0;
-                points.push(...newPoints);
+                points.splice(0, points.length, ...newPoints);
+            }
+            
+            // Don't let it get too complex
+            if (points.length > 32) {
+                const simplified = simplifyPoints(points, 24);
+                points.splice(0, points.length, ...simplified);
             }
             
             return points;
@@ -1108,17 +1125,17 @@
             
             let deformedPoints = applyFlowDeformation(originalPoints, flowStyle, intensity, smoothness, variationCounter);
             
-            // Apply extra smoothing based on smoothness setting
-            const smoothingPasses = Math.floor(smoothness * 5) + 2;
+            // Balanced smoothing for clean but smooth results
+            const smoothingPasses = Math.floor(smoothness * 3) + 3; // 3-6 passes
             deformedPoints = smoothPoints(deformedPoints, smoothingPasses);
             
-            currentVariation = pointsToSmoothPath(deformedPoints);
+            currentVariation = pointsToCleanPath(deformedPoints);
             showVariation();
             
             document.getElementById('downloadBtn').disabled = false;
             document.getElementById('collectBtn').disabled = false;
             
-            showSuccess(`Generated smooth ${flowStyle} variation #${variationCounter}!`);
+            showSuccess(`Generated clean ${flowStyle} variation #${variationCounter}!`);
         }
         
         // NEW: Generate smooth flow sequence for water-like animations
@@ -1130,29 +1147,23 @@
             const intensity = parseFloat(document.getElementById('flowIntensity').value);
             const smoothness = parseFloat(document.getElementById('flowSmoothness').value);
             
-            // Generate 3 progressive variations with optimal spacing for smooth flow
+            // Generate exactly 3 simple variations for clean animation
             const numFrames = 3;
             for (let i = 0; i < numFrames; i++) {
                 variationCounter++;
                 
-                // Progressive phase for smooth transitions - complete cycle over 3 frames
-                const phase = (i / numFrames) * Math.PI * 2;
-                
-                let deformedPoints = applyOptimalFlowDeformation(
+                let deformedPoints = applySimpleFlowDeformation(
                     originalPoints, 
                     flowStyle, 
                     intensity, 
-                    smoothness, 
-                    phase,
                     i,
                     numFrames
                 );
                 
-                // Apply moderate smoothing to preserve dramatic differences
-                const smoothingPasses = Math.floor(smoothness * 4) + 2;
-                deformedPoints = smoothPoints(deformedPoints, smoothingPasses);
+                // Minimal smoothing to keep shapes simple but smooth
+                deformedPoints = smoothPoints(deformedPoints, 2);
                 
-                const variation = pointsToSmoothPath(deformedPoints);
+                const variation = pointsToCleanPath(deformedPoints);
                 collectedVariations.push(variation);
             }
             
@@ -1165,105 +1176,34 @@
             document.getElementById('collectBtn').disabled = false;
             document.getElementById('animateBtn').disabled = false;
             
-            showSuccess(`🌊 Generated natural flow sequence! ${numFrames} dramatic variations ready for organic water-like animation.`);
+            showSuccess(`🌊 Generated clean flow sequence! ${numFrames} simple variations ready for smooth animation.`);
         }
         
-        // NEW: Natural dramatic flow deformation for organic water-like animations
-        function applyOptimalFlowDeformation(points, flowStyle, intensity, smoothness, phase, frameIndex, totalFrames) {
+        // Simple deformation for clean, fraternal shapes
+        function applySimpleFlowDeformation(points, flowStyle, intensity, frameIndex, totalFrames) {
             return points.map((point, index) => {
                 const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
                 const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
                 
-                // Dramatic deformation - trust spline interpolation for smoothness
+                // Keep deformation subtle for fraternal similarity
                 let deformation = 0;
-                const maxDeformation = intensity * 0.35; // Much more dramatic (35% instead of 12%)
+                const maxDeformation = intensity * 0.15; // Much more conservative (15% instead of 35%)
                 
-                // Create natural, organic variations based on frame
+                // Simple wave-based deformation per frame
                 switch (frameIndex) {
-                    case 0: // Original-ish shape with gentle waves
-                        switch (flowStyle) {
-                            case 'gentle':
-                                deformation = Math.sin(angle * 2.3) * maxDeformation * 0.4 +
-                                             Math.sin(angle * 4.7 + Math.PI/3) * maxDeformation * 0.3 +
-                                             Math.sin(angle * 1.1 + Math.PI/6) * maxDeformation * 0.2;
-                                break;
-                            case 'dynamic':
-                                deformation = Math.sin(angle * 3.1) * maxDeformation * 0.6 +
-                                             Math.cos(angle * 5.2 + Math.PI/4) * maxDeformation * 0.4;
-                                break;
-                            case 'rhythmic':
-                                deformation = Math.sin(angle * 2.8) * maxDeformation * 0.5 +
-                                             Math.sin(angle * 6.1 + Math.PI/2) * maxDeformation * 0.3;
-                                break;
-                            case 'chaotic':
-                                deformation = Math.sin(angle * 4.3) * maxDeformation * 0.5 +
-                                             Math.cos(angle * 2.7 + Math.PI/3) * maxDeformation * 0.4 +
-                                             Math.sin(angle * 7.1 + Math.PI/8) * maxDeformation * 0.3;
-                                break;
-                        }
+                    case 0: // Original-ish shape
+                        deformation = Math.sin(angle * 3) * maxDeformation * 0.5 +
+                                     Math.sin(angle * 7) * maxDeformation * 0.3;
                         break;
-                        
-                    case 1: // Dramatically different middle shape
-                        switch (flowStyle) {
-                            case 'gentle':
-                                // Create flowing, elongated shape
-                                const stretchFactor = Math.cos(angle * 1.5 + Math.PI/4);
-                                deformation = stretchFactor * maxDeformation * 0.8 +
-                                             Math.sin(angle * 3.8 + Math.PI) * maxDeformation * 0.5 +
-                                             Math.sin(angle * 1.7) * maxDeformation * 0.3;
-                                break;
-                            case 'dynamic':
-                                // Create angular, energetic shape
-                                deformation = Math.sin(angle * 5.2 + Math.PI/2) * maxDeformation * 0.9 +
-                                             Math.cos(angle * 2.1 + Math.PI) * maxDeformation * 0.6 +
-                                             Math.sin(angle * 7.3) * maxDeformation * 0.4;
-                                break;
-                            case 'rhythmic':
-                                // Create pulsing, breathing shape
-                                const breathe = Math.sin(angle * 1.0) * 0.8 + 0.2;
-                                deformation = breathe * maxDeformation * 0.7 +
-                                             Math.sin(angle * 4.5 + Math.PI/3) * maxDeformation * 0.4;
-                                break;
-                            case 'chaotic':
-                                // Create complex, irregular shape
-                                deformation = Math.sin(angle * 6.7 + Math.PI/6) * maxDeformation * 0.7 +
-                                             Math.cos(angle * 3.4 + Math.PI/2) * maxDeformation * 0.6 +
-                                             Math.sin(angle * 8.9 + Math.PI/4) * maxDeformation * 0.4 +
-                                             Math.cos(angle * 1.8 + Math.PI) * maxDeformation * 0.3;
-                                break;
-                        }
+                    case 1: // Middle variation
+                        deformation = Math.sin(angle * 4 + Math.PI/3) * maxDeformation * 0.6 +
+                                     Math.cos(angle * 5) * maxDeformation * 0.4;
                         break;
-                        
-                    case 2: // Different variation that flows back to frame 0
-                        switch (flowStyle) {
-                            case 'gentle':
-                                deformation = Math.sin(angle * 2.9 + Math.PI/2) * maxDeformation * 0.5 +
-                                             Math.cos(angle * 4.1 + Math.PI/4) * maxDeformation * 0.4 +
-                                             Math.sin(angle * 1.3 + Math.PI) * maxDeformation * 0.2;
-                                break;
-                            case 'dynamic':
-                                deformation = Math.cos(angle * 3.7 + Math.PI/3) * maxDeformation * 0.7 +
-                                             Math.sin(angle * 5.8 + Math.PI/6) * maxDeformation * 0.5;
-                                break;
-                            case 'rhythmic':
-                                deformation = Math.sin(angle * 2.4 + Math.PI/4) * maxDeformation * 0.6 +
-                                             Math.sin(angle * 5.7 + Math.PI) * maxDeformation * 0.4;
-                                break;
-                            case 'chaotic':
-                                deformation = Math.sin(angle * 4.9 + Math.PI/5) * maxDeformation * 0.6 +
-                                             Math.cos(angle * 2.3 + Math.PI/2) * maxDeformation * 0.5 +
-                                             Math.sin(angle * 6.8 + Math.PI/7) * maxDeformation * 0.3;
-                                break;
-                        }
+                    case 2: // Return variation
+                        deformation = Math.sin(angle * 3.5 + Math.PI/6) * maxDeformation * 0.5 +
+                                     Math.sin(angle * 6 + Math.PI/2) * maxDeformation * 0.3;
                         break;
                 }
-                
-                // Apply smoothness as a multiplier but keep dramatic changes
-                deformation *= (0.7 + smoothness * 0.3); // Less impact from smoothness
-                
-                // Add some natural asymmetry based on position
-                const asymmetry = Math.sin(index * 0.3 + frameIndex * 1.2) * maxDeformation * 0.15;
-                deformation += asymmetry;
                 
                 const newRadius = radius * (1 + deformation);
                 
@@ -1274,34 +1214,101 @@
             });
         }
         
+        // Generate clean, smooth paths with proper curves
+        function pointsToCleanPath(points) {
+            if (points.length === 0) return '';
+            
+            // Keep enough points for smoothness but not excessive
+            const targetPoints = Math.min(Math.max(points.length, 16), 24);
+            const workingPoints = points.length > targetPoints ? simplifyPoints(points, targetPoints) : points;
+            
+            // Start the path
+            let path = `M${workingPoints[0].x.toFixed(1)},${workingPoints[0].y.toFixed(1)}`;
+            
+            // Create smooth curves with proper control points
+            for (let i = 0; i < workingPoints.length; i++) {
+                const current = workingPoints[i];
+                const next = workingPoints[(i + 1) % workingPoints.length];
+                const prev = workingPoints[(i - 1 + workingPoints.length) % workingPoints.length];
+                const nextNext = workingPoints[(i + 2) % workingPoints.length];
+                
+                // Calculate smooth tangent vectors
+                const prevToNext = {
+                    x: next.x - prev.x,
+                    y: next.y - prev.y
+                };
+                
+                const currentToNextNext = {
+                    x: nextNext.x - current.x,
+                    y: nextNext.y - current.y
+                };
+                
+                // Normalize and scale for smooth curves
+                const prevToNextLen = Math.sqrt(prevToNext.x ** 2 + prevToNext.y ** 2) || 1;
+                const currentToNextNextLen = Math.sqrt(currentToNextNext.x ** 2 + currentToNextNext.y ** 2) || 1;
+                
+                const controlDistance = Math.min(
+                    Math.sqrt((next.x - current.x) ** 2 + (next.y - current.y) ** 2) * 0.3,
+                    25
+                );
+                
+                // Smooth control points
+                const cp1x = current.x + (prevToNext.x / prevToNextLen) * controlDistance;
+                const cp1y = current.y + (prevToNext.y / prevToNextLen) * controlDistance;
+                const cp2x = next.x - (currentToNextNext.x / currentToNextNextLen) * controlDistance;
+                const cp2y = next.y - (currentToNextNext.y / currentToNextNextLen) * controlDistance;
+                
+                path += ` C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${next.x.toFixed(1)},${next.y.toFixed(1)}`;
+            }
+            
+            path += ' Z';
+            return path;
+        }
+        
+        // Better point simplification that preserves curves
+        function simplifyPoints(points, targetCount) {
+            if (points.length <= targetCount) return points;
+            
+            // Use Douglas-Peucker-inspired simplification
+            const step = points.length / targetCount;
+            const simplified = [];
+            
+            for (let i = 0; i < targetCount; i++) {
+                const index = Math.round(i * step) % points.length;
+                simplified.push(points[index]);
+            }
+            
+            return simplified;
+        }
+        
         function applyFlowDeformation(points, flowStyle, intensity, smoothness, seed) {
             return points.map((point, index) => {
                 const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
                 const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
                 
                 let deformation = 0;
+                const maxDeformation = intensity * 0.15; // Conservative deformation
                 
                 switch (flowStyle) {
                     case 'gentle':
-                        deformation = Math.sin(angle * 3 + seed * 0.1) * intensity * 0.2 +
-                                     Math.sin(angle * 5 + seed * 0.15) * intensity * 0.12;
+                        deformation = Math.sin(angle * 3 + seed * 0.1) * maxDeformation * 0.8 +
+                                     Math.sin(angle * 5 + seed * 0.15) * maxDeformation * 0.5;
                         break;
                     case 'dynamic':
-                        deformation = Math.sin(angle * 4 + seed * 0.1) * intensity * 0.25 +
-                                     Math.cos(angle * 6 + seed * 0.2) * intensity * 0.18;
+                        deformation = Math.sin(angle * 4 + seed * 0.1) * maxDeformation * 0.9 +
+                                     Math.cos(angle * 6 + seed * 0.2) * maxDeformation * 0.6;
                         break;
                     case 'rhythmic':
-                        deformation = Math.sin(angle * 2 + seed * 0.05) * intensity * 0.3 +
-                                     Math.sin(angle * 8 + seed * 0.1) * intensity * 0.15;
+                        deformation = Math.sin(angle * 2 + seed * 0.05) * maxDeformation * 1.0 +
+                                     Math.sin(angle * 8 + seed * 0.1) * maxDeformation * 0.4;
                         break;
                     case 'chaotic':
-                        deformation = Math.sin(angle * 5 + seed * 0.1) * intensity * 0.2 +
-                                     Math.cos(angle * 3.7 + seed * 0.15) * intensity * 0.18 +
-                                     Math.sin(angle * 7.3 + seed * 0.12) * intensity * 0.14;
+                        deformation = Math.sin(angle * 5 + seed * 0.1) * maxDeformation * 0.7 +
+                                     Math.cos(angle * 3.7 + seed * 0.15) * maxDeformation * 0.5 +
+                                     Math.sin(angle * 7.3 + seed * 0.12) * maxDeformation * 0.4;
                         break;
                 }
                 
-                deformation *= smoothness;
                 const newRadius = radius * (1 + deformation);
                 
                 return {
@@ -1328,7 +1335,7 @@
                     const next = smoothed[(i + 1) % smoothed.length];
                     
                     // Weighted average for smooth transitions
-                    const smoothFactor = 0.4;
+                    const smoothFactor = 0.35; // Slightly more aggressive smoothing
                     const x = current.x * (1 - smoothFactor) + (prev.x + next.x) * smoothFactor * 0.5;
                     const y = current.y * (1 - smoothFactor) + (prev.y + next.y) * smoothFactor * 0.5;
                     
@@ -1339,54 +1346,6 @@
             }
             
             return smoothed;
-        }
-        
-        function pointsToSmoothPath(points) {
-            if (points.length === 0) return '';
-            
-            // Start the path
-            let path = `M${points[0].x.toFixed(2)},${points[0].y.toFixed(2)}`;
-            
-            // Create ultra-smooth curves using proper control points
-            for (let i = 0; i < points.length; i++) {
-                const current = points[i];
-                const next = points[(i + 1) % points.length];
-                const prev = points[(i - 1 + points.length) % points.length];
-                const nextNext = points[(i + 2) % points.length];
-                
-                // Calculate tangent vectors for smooth curves
-                const prevToNext = {
-                    x: next.x - prev.x,
-                    y: next.y - prev.y
-                };
-                
-                const currentToNextNext = {
-                    x: nextNext.x - current.x,
-                    y: nextNext.y - current.y
-                };
-                
-                // Normalize and scale tangent vectors
-                const prevToNextLen = Math.sqrt(prevToNext.x ** 2 + prevToNext.y ** 2) || 1;
-                const currentToNextNextLen = Math.sqrt(currentToNextNext.x ** 2 + currentToNextNext.y ** 2) || 1;
-                
-                const controlPointDistance = Math.min(
-                    Math.sqrt((next.x - current.x) ** 2 + (next.y - current.y) ** 2) * 0.35,
-                    30
-                );
-                
-                // First control point (from current)
-                const cp1x = current.x + (prevToNext.x / prevToNextLen) * controlPointDistance;
-                const cp1y = current.y + (prevToNext.y / prevToNextLen) * controlPointDistance;
-                
-                // Second control point (to next)
-                const cp2x = next.x - (currentToNextNext.x / currentToNextNextLen) * controlPointDistance;
-                const cp2y = next.y - (currentToNextNext.y / currentToNextNextLen) * controlPointDistance;
-                
-                path += ` C${cp1x.toFixed(2)},${cp1y.toFixed(2)} ${cp2x.toFixed(2)},${cp2y.toFixed(2)} ${next.x.toFixed(2)},${next.y.toFixed(2)}`;
-            }
-            
-            path += ' Z';
-            return path;
         }
         
         function showOriginalPreview(svgContent) {
@@ -1516,32 +1475,29 @@
         }
         
         function generateFlowAnimation() {
-            // Calculate overall bounds
+            // Calculate clean bounds
             const allBounds = collectedVariations.map(v => calculateBounds(v));
             const minX = Math.min(...allBounds.map(b => b.minX));
             const maxX = Math.max(...allBounds.map(b => b.maxX));
             const minY = Math.min(...allBounds.map(b => b.minY));
             const maxY = Math.max(...allBounds.map(b => b.maxY));
             
-            const padding = Math.max(maxX - minX, maxY - minY) * 0.2;
-            const viewBoxX = minX - padding;
-            const viewBoxY = minY - padding;
-            const viewBoxWidth = (maxX - minX) + (padding * 2);
-            const viewBoxHeight = (maxY - minY) + (padding * 2);
+            // Create clean, simple viewBox
+            const padding = 20;
+            const viewBoxX = Math.floor(minX - padding);
+            const viewBoxY = Math.floor(minY - padding);
+            const viewBoxWidth = Math.ceil(maxX - minX + padding * 2);
+            const viewBoxHeight = Math.ceil(maxY - minY + padding * 2);
             
-            // Create smooth looping animation by ensuring the sequence loops back to first frame
+            // Simple 3-frame animation with clean loop
             const animationValues = collectedVariations.join(';') + ';' + collectedVariations[0];
-            const numFrames = collectedVariations.length + 1;
-            const keyTimes = Array.from({length: numFrames}, (_, i) => (i / (numFrames - 1)).toFixed(3)).join(';');
+            const keyTimes = "0;0.33;0.67;1";
             
             // Get animation speed settings
             const speedMultiplier = parseFloat(document.getElementById('animationSpeed').value);
-            const baseDuration = 4.0; // Optimal duration for 3-frame animation
-            const morphDuration = (baseDuration / speedMultiplier).toFixed(1);
-            const colorDuration = (12.0 / speedMultiplier).toFixed(1);
-            const patternDuration = (4.0 / speedMultiplier).toFixed(1);
+            const morphDuration = (4.0 / speedMultiplier).toFixed(1);
             
-            // Generate pattern if enabled
+            // Generate minimal pattern if enabled
             let patternHTML = '';
             let clipPathHTML = '';
             
@@ -1551,29 +1507,16 @@
                 const opacity = parseFloat(document.getElementById('patternOpacity').value);
                 
                 const bounds = { viewBoxX, viewBoxY, viewBoxWidth, viewBoxHeight };
-                let patternElements = PatternGenerator.generatePattern(patternType, bounds, density, opacity);
-                
-                // Update pattern animations with speed control
-                if (patternType === 'stars') {
-                    patternElements = patternElements.replace(/animation-duration: ([\d.]+)s/g, (match, duration) => {
-                        const newDuration = (parseFloat(duration) / speedMultiplier).toFixed(1);
-                        return `animation-duration: ${newDuration}s`;
-                    });
-                } else if (patternType === 'circles') {
-                    patternElements = patternElements.replace(/dur="([\d.]+)s"/g, (match, duration) => {
-                        const newDuration = (parseFloat(duration) / speedMultiplier).toFixed(1);
-                        return `dur="${newDuration}s"`;
-                    });
-                }
+                const patternElements = PatternGenerator.generatePattern(patternType, bounds, density, opacity);
                 
                 patternHTML = `
-    <g clip-path="url(#morphClip)" opacity="0.9">
+    <g clip-path="url(#morphClip)" opacity="0.8">
         ${patternElements}
     </g>`;
                 
                 clipPathHTML = `
                 <clipPath id="morphClip">
-                    <path class="morphing-shape">
+                    <path>
                         <animate 
                             attributeName="d" 
                             dur="${morphDuration}s" 
@@ -1581,55 +1524,31 @@
                             values="${animationValues}"
                             keyTimes="${keyTimes}"
                             calcMode="spline"
-                            keySplines="${Array.from({length: numFrames - 1}, () => '0.4 0 0.6 1').join(';')}"
+                            keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
                         />
                     </path>
                 </clipPath>`;
             }
-            
-            const lighterColor = adjustBrightness(globalColor, 20);
-            const darkerColor = adjustBrightness(globalColorSecondary, -10);
-            
-            // Use ultra-smooth spline for water-like flow (more gradual curves)
-            const splineValues = Array.from({length: numFrames - 1}, () => '0.25 0.1 0.75 0.9').join(';');
             
             return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}" width="100%" height="100%">
                 <defs>
                     <style>
                         <![CDATA[
                         .morphing-shape { 
-                            fill: url(#morphGradient);
+                            fill: ${globalColor};
                         }
                         .star { 
-                            fill: rgba(255,255,255,0.9); 
-                            opacity: 0.7;
+                            fill: rgba(255,255,255,0.8); 
                         }
                         .twinkle { 
-                            animation: twinkle ${(2.5 / speedMultiplier).toFixed(1)}s ease-in-out infinite alternate;
-                        }
-                        .pattern-element {
-                            animation: patternFloat ${(4.0 / speedMultiplier).toFixed(1)}s ease-in-out infinite;
+                            animation: twinkle ${(3.0 / speedMultiplier).toFixed(1)}s ease-in-out infinite alternate;
                         }
                         @keyframes twinkle { 
-                            0% { opacity: 0.2; transform: scale(0.6); } 
-                            100% { opacity: 1; transform: scale(1.4); } 
-                        }
-                        @keyframes patternFloat {
-                            0%, 100% { transform: translateY(0px); }
-                            50% { transform: translateY(-2px); }
+                            0% { opacity: 0.3; } 
+                            100% { opacity: 1; } 
                         }
                         ]]>
                     </style>
-                    <radialGradient id="morphGradient" cx="40%" cy="30%" r="80%">
-                        <stop offset="0%" style="stop-color:${globalColor};stop-opacity:1">
-                            <animate attributeName="stop-color" dur="${colorDuration}s" repeatCount="indefinite" 
-                                values="${globalColor};${lighterColor};${globalColorSecondary};${darkerColor};${globalColor}" />
-                        </stop>
-                        <stop offset="100%" style="stop-color:${globalColorSecondary};stop-opacity:0.85">
-                            <animate attributeName="stop-color" dur="${colorDuration}s" repeatCount="indefinite" 
-                                values="${globalColorSecondary};${darkerColor};${lighterColor};${globalColor};${globalColorSecondary}" />
-                        </stop>
-                    </radialGradient>
                     ${clipPathHTML}
                 </defs>
                 
@@ -1642,7 +1561,7 @@
                         values="${animationValues}"
                         keyTimes="${keyTimes}"
                         calcMode="spline"
-                        keySplines="${splineValues}"
+                        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
                     />
                 </path>
                 
