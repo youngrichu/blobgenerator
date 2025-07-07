@@ -5,6 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Blob Flow Generator</title>
     <style>
+        :root {
+            /* Light mode colors */
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f9fa;
+            --bg-tertiary: #e9ecef;
+            --text-primary: #495057;
+            --text-secondary: #6c757d;
+            --text-muted: #adb5bd;
+            --border-color: #dee2e6;
+            --border-light: #e9ecef;
+            --shadow-color: rgba(0,0,0,0.1);
+            --input-bg: #ffffff;
+            --accent-bg: rgba(102, 126, 234, 0.1);
+        }
+
+        [data-theme="dark"] {
+            /* Dark mode colors */
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2d2d2d;
+            --bg-tertiary: #404040;
+            --text-primary: #e9ecef;
+            --text-secondary: #adb5bd;
+            --text-muted: #6c757d;
+            --border-color: #404040;
+            --border-light: #2d2d2d;
+            --shadow-color: rgba(0,0,0,0.3);
+            --input-bg: #2d2d2d;
+            --accent-bg: rgba(102, 126, 234, 0.2);
+        }
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -22,10 +52,11 @@
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.98);
+            background: var(--bg-primary);
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            box-shadow: 0 20px 60px var(--shadow-color);
+            transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
 
         .header {
@@ -33,6 +64,29 @@
             color: white;
             padding: 24px 30px;
             text-align: center;
+            position: relative;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 20px;
+            padding: 8px 16px;
+            color: white;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .theme-toggle:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-1px);
         }
 
         .header h1 {
@@ -53,13 +107,14 @@
         }
 
         .sidebar {
-            background: #f8f9fa;
-            border-right: 1px solid #e9ecef;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-light);
             padding: 25px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
             gap: 20px;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
         .main-area {
@@ -76,11 +131,12 @@
         .section-title {
             font-size: 1.2em;
             font-weight: 600;
-            color: #495057;
+            color: var(--text-primary);
             margin-bottom: 15px;
             display: flex;
             align-items: center;
             gap: 8px;
+            transition: color 0.3s ease;
         }
 
         .section-title::before {
@@ -89,11 +145,11 @@
         }
 
         .upload-area {
-            border: 2px dashed #6c757d;
+            border: 2px dashed var(--text-secondary);
             border-radius: 12px;
             padding: 30px 20px;
             text-align: center;
-            background: #fff;
+            background: var(--input-bg);
             transition: all 0.3s ease;
             cursor: pointer;
             margin-bottom: 15px;
@@ -115,23 +171,26 @@
             height: 48px;
             margin: 0 auto 12px;
             border-radius: 50%;
-            background: #e9ecef;
+            background: var(--bg-tertiary);
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
-            color: #6c757d;
+            color: var(--text-secondary);
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         .upload-text {
-            color: #6c757d;
+            color: var(--text-secondary);
             font-size: 1.1em;
             margin-bottom: 8px;
+            transition: color 0.3s ease;
         }
 
         .upload-subtext {
-            color: #6c757d;
+            color: var(--text-secondary);
             font-size: 0.9em;
+            transition: color 0.3s ease;
         }
 
         .file-input {
@@ -167,26 +226,58 @@
         }
 
         .btn:disabled {
-            background: #6c757d;
+            background: #adb5bd;
+            color: #6c757d;
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
-            opacity: 0.6;
+            opacity: 0.8;
+            border: 1px solid #dee2e6;
         }
 
         .btn-secondary {
             background: linear-gradient(135deg, #6c757d, #495057);
+            color: white;
+            font-weight: 500;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: linear-gradient(135deg, #5a6268, #343a40);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn-secondary:disabled {
+            background: #adb5bd;
+            color: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.8;
         }
 
         .btn-outline {
-            background: transparent;
+            background: rgba(102, 126, 234, 0.1);
             border: 2px solid #667eea;
             color: #667eea;
+            font-weight: 600;
         }
 
         .btn-outline:hover:not(:disabled) {
             background: #667eea;
             color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-outline:disabled {
+            background: rgba(173, 181, 189, 0.1);
+            border: 2px solid #adb5bd;
+            color: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+            opacity: 0.8;
         }
 
         /* Accordion System */
@@ -198,27 +289,28 @@
         }
 
         .accordion-item {
-            background: white;
-            border: 1px solid #e9ecef;
+            background: var(--input-bg);
+            border: 1px solid var(--border-light);
             border-radius: 8px;
             overflow: hidden;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
         }
 
         .accordion-header {
-            background: #f8f9fa;
+            background: var(--bg-secondary);
             padding: 12px 16px;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: space-between;
             font-weight: 600;
-            color: #495057;
-            border-bottom: 1px solid #e9ecef;
-            transition: all 0.2s ease;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-light);
+            transition: all 0.3s ease;
         }
 
         .accordion-header:hover {
-            background: #e9ecef;
+            background: var(--bg-tertiary);
         }
 
         .accordion-header.active {
@@ -259,8 +351,9 @@
             display: block;
             margin-bottom: 6px;
             font-weight: 500;
-            color: #495057;
+            color: var(--text-primary);
             font-size: 0.9em;
+            transition: color 0.3s ease;
         }
 
         .control-group input[type="range"] {
@@ -271,11 +364,12 @@
         .control-group .value-display {
             text-align: center;
             font-family: monospace;
-            color: #6c757d;
-            background: #f8f9fa;
+            color: var(--text-secondary);
+            background: var(--bg-secondary);
             padding: 4px;
             border-radius: 4px;
             font-size: 0.85em;
+            transition: color 0.3s ease, background-color 0.3s ease;
         }
 
         .color-controls {
@@ -295,39 +389,54 @@
 
         .color-input {
             padding: 6px 8px;
-            border: 1px solid #dee2e6;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             width: 90px;
             font-family: monospace;
             font-size: 0.9em;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
 
         .color-format {
             padding: 6px 8px;
-            border: 1px solid #dee2e6;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 0.9em;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
 
         .random-btn {
             padding: 6px 10px;
-            background: #f8f9fa;
-            border: 1px solid #dee2e6;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             cursor: pointer;
             font-size: 0.9em;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: all 0.3s ease;
         }
 
         .random-btn:hover {
-            background: #e9ecef;
+            background: var(--bg-tertiary);
+            border-color: var(--text-muted);
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px var(--shadow-color);
         }
 
         .algorithm-select {
             width: 100%;
             padding: 8px;
-            border: 1px solid #dee2e6;
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             font-size: 0.9em;
+            background: var(--input-bg);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
         }
 
         .checkbox-group {
@@ -346,7 +455,8 @@
             margin-left: 15px;
             margin-top: 10px;
             padding-top: 10px;
-            border-top: 1px solid #e9ecef;
+            border-top: 1px solid var(--border-light);
+            transition: border-color 0.3s ease;
         }
 
         .speed-controls {
@@ -364,8 +474,9 @@
             display: flex;
             justify-content: space-between;
             font-size: 0.8em;
-            color: #6c757d;
+            color: var(--text-secondary);
             margin-bottom: 8px;
+            transition: color 0.3s ease;
         }
 
         .btn-small {
@@ -375,20 +486,21 @@
 
         /* Preview Areas */
         .preview-area {
-            background: white;
+            background: var(--input-bg);
             border-radius: 8px;
             padding: 20px;
             min-height: 200px;
             display: flex;
             align-items: center;
             justify-content: center;
-            border: 1px solid #e9ecef;
+            border: 1px solid var(--border-light);
             margin-bottom: 20px;
             flex: 1;
+            transition: all 0.3s ease;
         }
 
         .variation-display {
-            background: white;
+            background: var(--input-bg);
             border-radius: 8px;
             padding: 20px;
             min-height: 300px;
@@ -396,16 +508,18 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border: 1px solid #e9ecef;
+            border: 1px solid var(--border-light);
             margin-bottom: 20px;
             flex: 1;
+            transition: all 0.3s ease;
         }
 
         .variation-label {
             font-size: 1.1em;
-            color: #495057;
+            color: var(--text-primary);
             font-weight: 600;
             margin-bottom: 15px;
+            transition: color 0.3s ease;
         }
 
         .variation-svg {
@@ -416,18 +530,20 @@
 
         .placeholder-text {
             text-align: center;
-            color: #6c757d;
+            color: var(--text-secondary);
             line-height: 1.6;
+            transition: color 0.3s ease;
         }
 
         /* Animation Preview */
         .animation-preview {
-            background: white;
+            background: var(--input-bg);
             border-radius: 8px;
             padding: 15px;
             margin-top: 15px;
             min-height: 180px;
             display: none;
+            transition: background-color 0.3s ease;
         }
 
         .animation-display {
@@ -437,7 +553,8 @@
             align-items: center;
             justify-content: center;
             border-radius: 6px;
-            background: #f8f9fa;
+            background: var(--bg-secondary);
+            transition: background-color 0.3s ease;
         }
 
         /* Status Messages */
@@ -449,6 +566,13 @@
             border-left: 3px solid #ffc107;
             font-size: 0.9em;
             color: #856404;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .status-info {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border-left-color: #ffc107;
         }
 
         .error {
@@ -459,6 +583,13 @@
             border-radius: 6px;
             margin: 10px 0;
             font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .error {
+            color: #ff6b6b;
+            background: rgba(220, 53, 69, 0.2);
+            border-color: rgba(220, 53, 69, 0.3);
         }
 
         .success {
@@ -469,6 +600,13 @@
             border-radius: 6px;
             margin: 10px 0;
             font-size: 0.9em;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .success {
+            color: #51cf66;
+            background: rgba(21, 87, 36, 0.2);
+            border-color: rgba(21, 87, 36, 0.3);
         }
 
         /* Responsive Design */
@@ -516,6 +654,10 @@
 <body>
     <div class="container">
         <div class="header">
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="themeIcon">🌙</span>
+                <span id="themeText">Dark</span>
+            </button>
             <h1>Blob Flow Generator</h1>
             <p>Create smooth, animated shape variations from your SVG blobs</p>
         </div>
@@ -559,8 +701,8 @@
                             <div class="control-group">
                                 <label>Blob Color:</label>
                                 <div class="color-controls">
-                                    <input type="color" id="colorPicker" class="color-picker" value="#667eea">
-                                    <input type="text" id="colorInput" class="color-input" value="#667eea" placeholder="#667eea">
+                                    <input type="color" id="colorPicker" class="color-picker" value="#54aa95">
+                                    <input type="text" id="colorInput" class="color-input" value="#54aa95" placeholder="#54aa95">
                                     <select id="colorFormat" class="color-format">
                                         <option value="hex">HEX</option>
                                         <option value="rgb">RGB</option>
@@ -569,7 +711,7 @@
                                     <button class="random-btn" onclick="randomizeColor()">Random</button>
                                 </div>
                                 <div style="font-size: 0.8em; color: #666; margin-top: 5px;">
-                                    Current: <span id="currentColorDisplay">#667eea</span>
+                                    Current: <span id="currentColorDisplay">#54aa95</span>
                                 </div>
                             </div>
                             
@@ -737,11 +879,41 @@
         let collectedVariations = [];
         let shapeCenter = { x: 0, y: 0 };
         let averageRadius = 100;
-        let globalColor = '#667eea';
+        let globalColor = '#54aa95';
         let globalColorSecondary = '#764ba2';
         
+        // Theme management
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('blob-generator-theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeToggle(savedTheme);
+        }
+        
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('blob-generator-theme', newTheme);
+            updateThemeToggle(newTheme);
+        }
+        
+        function updateThemeToggle(theme) {
+            const themeIcon = document.getElementById('themeIcon');
+            const themeText = document.getElementById('themeText');
+            
+            if (theme === 'dark') {
+                themeIcon.textContent = '☀️';
+                themeText.textContent = 'Light';
+            } else {
+                themeIcon.textContent = '🌙';
+                themeText.textContent = 'Dark';
+            }
+        }
+
         // Initialize
         document.addEventListener('DOMContentLoaded', function() {
+            initializeTheme();
             setupEventListeners();
             updateControlDisplays();
             updatePatternDisplays();
@@ -2000,7 +2172,7 @@
             collectedVariations = [];
             
             // Reset colors
-            globalColor = '#667eea';
+            globalColor = '#54aa95';
             globalColorSecondary = '#764ba2';
             document.getElementById('colorPicker').value = globalColor;
             updateColorInput(globalColor);
