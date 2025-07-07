@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Natural Flow Blob Generator</title>
+    <title>Blob Flow Generator</title>
     <style>
         * {
             box-sizing: border-box;
@@ -12,69 +12,91 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            line-height: 1.6;
         }
 
         .container {
-            max-width: 1000px;
+            max-width: 1200px;
             margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 20px;
-            padding: 30px;
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 12px;
+            overflow: hidden;
             box-shadow: 0 20px 60px rgba(0,0,0,0.1);
         }
 
-        h1 {
-            text-align: center;
-            color: #333;
-            margin-bottom: 30px;
-            font-size: 2.5em;
+        .header {
             background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: white;
+            padding: 24px 30px;
+            text-align: center;
         }
 
-        .main-content {
+        .header h1 {
+            font-size: 2.2em;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .main-layout {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
+            grid-template-columns: 400px 1fr;
+            min-height: 600px;
         }
 
+        .sidebar {
+            background: #f8f9fa;
+            border-right: 1px solid #e9ecef;
+            padding: 25px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .main-area {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Upload Section */
         .upload-section {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            border: 2px solid #e9ecef;
-        }
-
-        .variation-section {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 25px;
-            border: 2px solid #e9ecef;
+            flex-shrink: 0;
         }
 
         .section-title {
-            font-size: 1.4em;
+            font-size: 1.2em;
+            font-weight: 600;
             color: #495057;
-            margin-bottom: 20px;
-            border-bottom: 2px solid #dee2e6;
-            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-title::before {
+            content: "⬆";
+            font-size: 1.1em;
         }
 
         .upload-area {
-            border: 3px dashed #6c757d;
-            border-radius: 15px;
-            padding: 40px;
+            border: 2px dashed #6c757d;
+            border-radius: 12px;
+            padding: 30px 20px;
             text-align: center;
             background: #fff;
             transition: all 0.3s ease;
             cursor: pointer;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .upload-area:hover {
@@ -85,80 +107,63 @@
         .upload-area.dragover {
             border-color: #667eea;
             background: #e3f2fd;
-            transform: scale(1.02);
+            transform: scale(1.01);
         }
 
         .upload-icon {
-            font-size: 3em;
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 12px;
+            border-radius: 50%;
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
             color: #6c757d;
-            margin-bottom: 15px;
         }
 
         .upload-text {
-            font-size: 1.1em;
             color: #6c757d;
-            margin-bottom: 15px;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+        }
+
+        .upload-subtext {
+            color: #6c757d;
+            font-size: 0.9em;
         }
 
         .file-input {
             display: none;
         }
 
-        .preview-area {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            min-height: 250px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #e9ecef;
-            margin-bottom: 20px;
-        }
-
-        .variation-display {
-            background: white;
-            border-radius: 15px;
-            padding: 20px;
-            min-height: 350px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid #e9ecef;
-            margin-bottom: 20px;
-        }
-
-        .variation-label {
-            font-size: 1.2em;
-            color: #495057;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .variation-svg {
-            width: 100%;
-            height: 280px;
-            border-radius: 10px;
+        /* Action Buttons - Prominent positioning */
+        .action-buttons {
+            flex-shrink: 0;
         }
 
         .btn {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 15px 30px;
-            border-radius: 25px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 1.1em;
-            font-weight: bold;
+            font-size: 1em;
+            font-weight: 500;
             transition: all 0.3s ease;
             width: 100%;
-            margin: 10px 0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        .btn:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
         .btn:disabled {
@@ -166,35 +171,96 @@
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
+            opacity: 0.6;
         }
 
         .btn-secondary {
             background: linear-gradient(135deg, #6c757d, #495057);
         }
 
-        .btn-small {
-            padding: 10px 20px;
-            font-size: 0.9em;
-            margin: 5px 0;
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #667eea;
+            color: #667eea;
         }
 
-        .controls {
-            background: #e3f2fd;
+        .btn-outline:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Accordion System */
+        .accordion {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .accordion-item {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .accordion-header {
+            background: #f8f9fa;
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-weight: 600;
+            color: #495057;
+            border-bottom: 1px solid #e9ecef;
+            transition: all 0.2s ease;
+        }
+
+        .accordion-header:hover {
+            background: #e9ecef;
+        }
+
+        .accordion-header.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .accordion-icon {
+            transition: transform 0.2s ease;
+            font-size: 0.8em;
+        }
+
+        .accordion-header.active .accordion-icon {
+            transform: rotate(180deg);
+        }
+
+        .accordion-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .accordion-content.active {
+            max-height: 800px;
             padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            border-left: 4px solid #2196f3;
         }
 
         .control-group {
             margin-bottom: 15px;
         }
 
+        .control-group:last-child {
+            margin-bottom: 0;
+        }
+
         .control-group label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #1976d2;
+            margin-bottom: 6px;
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.9em;
         }
 
         .control-group input[type="range"] {
@@ -205,27 +271,182 @@
         .control-group .value-display {
             text-align: center;
             font-family: monospace;
-            color: #495057;
-            background: white;
-            padding: 5px;
-            border-radius: 5px;
+            color: #6c757d;
+            background: #f8f9fa;
+            padding: 4px;
+            border-radius: 4px;
+            font-size: 0.85em;
+        }
+
+        .color-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .color-picker {
+            width: 40px;
+            height: 32px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .color-input {
+            padding: 6px 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            width: 90px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .color-format {
+            padding: 6px 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .random-btn {
+            padding: 6px 10px;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+
+        .random-btn:hover {
+            background: #e9ecef;
         }
 
         .algorithm-select {
             width: 100%;
-            padding: 10px;
-            border: 2px solid #e9ecef;
+            padding: 8px;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 0.9em;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            transform: scale(1.1);
+        }
+
+        .pattern-controls {
+            margin-left: 15px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .speed-controls {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .speed-controls input[type="range"] {
+            flex: 1;
+        }
+
+        .speed-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-bottom: 8px;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.9em;
+        }
+
+        /* Preview Areas */
+        .preview-area {
+            background: white;
             border-radius: 8px;
-            font-size: 1em;
+            padding: 20px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e9ecef;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+
+        .variation-display {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #e9ecef;
+            margin-bottom: 20px;
+            flex: 1;
+        }
+
+        .variation-label {
+            font-size: 1.1em;
+            color: #495057;
+            font-weight: 600;
             margin-bottom: 15px;
         }
 
+        .variation-svg {
+            width: 100%;
+            max-height: 250px;
+            border-radius: 8px;
+        }
+
+        .placeholder-text {
+            text-align: center;
+            color: #6c757d;
+            line-height: 1.6;
+        }
+
+        /* Animation Preview */
+        .animation-preview {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            min-height: 180px;
+            display: none;
+        }
+
+        .animation-display {
+            width: 100%;
+            height: 160px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            background: #f8f9fa;
+        }
+
+        /* Status Messages */
         .status-info {
             background: #fff3cd;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            border-left: 4px solid #ffc107;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            border-left: 3px solid #ffc107;
             font-size: 0.9em;
             color: #856404;
         }
@@ -234,196 +455,274 @@
             color: #dc3545;
             background: #f8d7da;
             border: 1px solid #f5c6cb;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 6px;
             margin: 10px 0;
+            font-size: 0.9em;
         }
 
         .success {
             color: #155724;
             background: #d4edda;
             border: 1px solid #c3e6cb;
-            padding: 10px;
-            border-radius: 8px;
+            padding: 12px;
+            border-radius: 6px;
             margin: 10px 0;
+            font-size: 0.9em;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid #e9ecef;
+                order: 2;
+                max-height: 400px;
+            }
+            
+            .main-area {
+                order: 1;
+            }
         }
 
         @media (max-width: 768px) {
-            .main-content {
-                grid-template-columns: 1fr;
+            .container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .sidebar, .main-area {
+                padding: 20px;
+            }
+            
+            .color-controls {
+                flex-wrap: wrap;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🌊 Natural Flow Blob Generator</h1>
+        <div class="header">
+            <h1>Blob Flow Generator</h1>
+            <p>Create smooth, animated shape variations from your SVG blobs</p>
+        </div>
         
-        <div class="main-content">
-            <div class="upload-section">
-                <h2 class="section-title">📁 Upload & Generate</h2>
-                
-                <div class="upload-area" id="uploadArea">
-                    <div class="upload-icon">🎨</div>
-                    <div class="upload-text">Drop your SVG blob here</div>
-                    <div class="upload-text">or click to browse</div>
-                    <input type="file" id="fileInput" class="file-input" accept=".svg">
-                </div>
-                
-                <div class="preview-area" id="originalPreview">
-                    <div style="text-align: center; color: #6c757d;">
-                        Upload an SVG to see preview
+        <div class="main-layout">
+            <div class="sidebar">
+                <!-- Upload Section -->
+                <div class="upload-section">
+                    <h2 class="section-title">Upload SVG</h2>
+                    
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">⬆</div>
+                        <div class="upload-text">Drop your SVG blob here</div>
+                        <div class="upload-subtext">or click to browse</div>
+                        <input type="file" id="fileInput" class="file-input" accept=".svg">
                     </div>
                 </div>
-                
-                <div class="controls">
-                    <h3 style="margin-bottom: 15px; color: #1976d2;">🎨 Color & Style</h3>
-                    
-                    <div class="control-group">
-                        <label>Blob Color:</label>
-                        <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
-                            <input type="color" id="colorPicker" value="#667eea" style="width: 50px; height: 35px; border: none; border-radius: 8px; cursor: pointer;">
-                            <input type="text" id="colorInput" value="#667eea" placeholder="#667eea" style="padding: 8px; border: 2px solid #e9ecef; border-radius: 8px; width: 100px; font-family: monospace;">
-                            <select id="colorFormat" style="padding: 8px; border: 2px solid #e9ecef; border-radius: 8px;">
-                                <option value="hex">HEX</option>
-                                <option value="rgb">RGB</option>
-                                <option value="hsl">HSL</option>
-                            </select>
-                            <button onclick="randomizeColor()" style="padding: 8px 12px; background: #f8f9fa; border: 2px solid #e9ecef; border-radius: 8px; cursor: pointer;">🎲</button>
+
+                <!-- Primary Actions -->
+                <div class="action-buttons">
+                    <button class="btn" id="generateBtn" onclick="generateVariation()" disabled>
+                        <span>Generate Single Variation</span>
+                    </button>
+                    <button class="btn btn-outline" onclick="generateFlowSequence()" disabled id="batchBtn">
+                        <span>Generate Flow Sequence (3 frames)</span>
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetAll()">
+                        <span>Reset</span>
+                    </button>
+                </div>
+
+                <!-- Accordion Settings -->
+                <div class="accordion">
+                    <!-- Color Settings -->
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion('colors')">
+                            <span>Color Settings</span>
+                            <span class="accordion-icon">▼</span>
                         </div>
-                        <div style="font-size: 0.8em; color: #666;">
-                            Current: <span id="currentColorDisplay">#667eea</span>
+                        <div class="accordion-content" id="colors-content">
+                            <div class="control-group">
+                                <label>Blob Color:</label>
+                                <div class="color-controls">
+                                    <input type="color" id="colorPicker" class="color-picker" value="#667eea">
+                                    <input type="text" id="colorInput" class="color-input" value="#667eea" placeholder="#667eea">
+                                    <select id="colorFormat" class="color-format">
+                                        <option value="hex">HEX</option>
+                                        <option value="rgb">RGB</option>
+                                        <option value="hsl">HSL</option>
+                                    </select>
+                                    <button class="random-btn" onclick="randomizeColor()">Random</button>
+                                </div>
+                                <div style="font-size: 0.8em; color: #666; margin-top: 5px;">
+                                    Current: <span id="currentColorDisplay">#667eea</span>
+                                </div>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label class="checkbox-group">
+                                    <input type="checkbox" id="randomColors">
+                                    <span>Random colors for variations</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="control-group">
-                        <label style="display: flex; align-items: center; cursor: pointer;">
-                            <input type="checkbox" id="randomColors" style="margin-right: 8px; transform: scale(1.2);">
-                            🌈 Random colors for each variation
-                        </label>
+
+                    <!-- Flow Parameters -->
+                    <div class="accordion-item">
+                        <div class="accordion-header active" onclick="toggleAccordion('flow')">
+                            <span>Flow Parameters</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content active" id="flow-content">
+                            <div class="control-group">
+                                <label>Flow Style:</label>
+                                <select id="flowStyle" class="algorithm-select">
+                                    <option value="gentle">Gentle Flow (Water-like)</option>
+                                    <option value="dynamic">Dynamic Flow (Lava-like)</option>
+                                    <option value="rhythmic">Rhythmic Flow (Breathing)</option>
+                                    <option value="chaotic">Chaotic Flow (Storm-like)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Flow Intensity:</label>
+                                <input type="range" id="flowIntensity" min="0.1" max="1.0" step="0.1" value="0.6">
+                                <div class="value-display" id="flowIntensityValue">60%</div>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Flow Smoothness:</label>
+                                <input type="range" id="flowSmoothness" min="0.3" max="1.0" step="0.1" value="0.7">
+                                <div class="value-display" id="flowSmoothnessValue">70%</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Animation Settings -->
+                    <div class="accordion-item">
+                        <div class="accordion-header" onclick="toggleAccordion('animation')">
+                            <span>Animation Settings</span>
+                            <span class="accordion-icon">▼</span>
+                        </div>
+                        <div class="accordion-content" id="animation-content">
+                            <div class="status-info">
+                                <strong>Flow Animation:</strong><br>
+                                <span id="collectionStatus">No flow sequence generated yet</span>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label class="checkbox-group">
+                                    <input type="checkbox" id="includePattern" checked>
+                                    <span>Include pattern overlay in animation</span>
+                                </label>
+                                
+                                <div id="patternSelector" class="pattern-controls">
+                                    <div class="control-group">
+                                        <label>Pattern Type:</label>
+                                        <select id="patternType" class="algorithm-select">
+                                            <option value="stars">Twinkling Stars</option>
+                                            <option value="dots">Polka Dots</option>
+                                            <option value="chevron">Chevron Zigzag</option>
+                                            <option value="stripes">Diagonal Stripes</option>
+                                            <option value="hexagon">Hexagonal Grid</option>
+                                            <option value="checkerboard">Checkerboard</option>
+                                            <option value="circles">Floating Circles</option>
+                                            <option value="waves">Wave Lines</option>
+                                            <option value="grid">Square Grid</option>
+                                            <option value="triangles">Triangle Pattern</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="control-group">
+                                        <label>Pattern Density:</label>
+                                        <input type="range" id="patternDensity" min="0.3" max="2.0" step="0.1" value="1.0">
+                                        <div class="value-display" id="densityValue">1.0</div>
+                                    </div>
+                                    
+                                    <div class="control-group">
+                                        <label>Pattern Opacity:</label>
+                                        <input type="range" id="patternOpacity" min="0.1" max="1.0" step="0.1" value="0.7">
+                                        <div class="value-display" id="opacityValue">0.7</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label>Animation Speed:</label>
+                                <div class="speed-labels">
+                                    <span>Slow</span>
+                                    <span>Fast</span>
+                                </div>
+                                <div class="speed-controls">
+                                    <input type="range" id="animationSpeed" min="0.25" max="3.0" step="0.25" value="1.0">
+                                </div>
+                                <div class="value-display">
+                                    <span id="speedValue">1.0x Normal Speed</span><br>
+                                    <small>Duration: <span id="durationDisplay">4.0s</span> per cycle</small>
+                                </div>
+                            </div>
+                            
+                            <div style="margin-top: 15px;">
+                                <button class="btn btn-outline btn-small" onclick="collectVariation()" disabled id="collectBtn">
+                                    Collect This Variation
+                                </button>
+                                <button class="btn btn-small" onclick="createAnimation()" disabled id="animateBtn">
+                                    Make Flow Animation
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                
-                <div class="controls">
-                    <h3 style="margin-bottom: 15px; color: #1976d2;">🌊 Natural Flow Controls</h3>
-                    
-                    <div class="control-group">
-                        <label>Flow Style:</label>
-                        <select id="flowStyle" class="algorithm-select">
-                            <option value="gentle">Gentle Flow (Water-like)</option>
-                            <option value="dynamic">Dynamic Flow (Lava-like)</option>
-                            <option value="rhythmic">Rhythmic Flow (Breathing)</option>
-                            <option value="chaotic">Chaotic Flow (Storm-like)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="control-group">
-                        <label>Flow Intensity:</label>
-                        <input type="range" id="flowIntensity" min="0.1" max="1.0" step="0.1" value="0.6">
-                        <div class="value-display" id="flowIntensityValue">60%</div>
-                    </div>
-                    
-                    <div class="control-group">
-                        <label>Flow Smoothness:</label>
-                        <input type="range" id="flowSmoothness" min="0.3" max="1.0" step="0.1" value="0.7">
-                        <div class="value-display" id="flowSmoothnessValue">70%</div>
-                    </div>
-                </div>
-                
-                <button class="btn" id="generateBtn" onclick="generateVariation()" disabled>
-                    🎲 Generate Single Variation
-                </button>
-                <button class="btn btn-secondary btn-small" onclick="generateFlowSequence()" disabled id="batchBtn">
-                    🌊 Generate Natural Flow (3 frames)
-                </button>
-                <button class="btn btn-secondary btn-small" onclick="resetAll()">🔄 Reset</button>
             </div>
             
-            <div class="variation-section">
-                <h2 class="section-title">✨ Your Flow Variation</h2>
-                
-                <div class="variation-display" id="variationDisplay">
-                    <div style="text-align: center; color: #6c757d;">
-                        Upload an SVG and generate variations<br>
-                        to see smooth flowing animations!
-                    </div>
-                </div>
-                
-                <button class="btn btn-secondary btn-small" onclick="downloadVariation()" disabled id="downloadBtn">
-                    📥 Download This Variation
-                </button>
-                
-                <div class="status-info">
-                    <strong>🎬 Flow Animation:</strong><br>
-                    <span id="collectionStatus">No flow sequence generated yet</span><br><br>
-                    
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: flex; align-items: center; cursor: pointer; margin-bottom: 10px;">
-                            <input type="checkbox" id="includePattern" style="margin-right: 8px; transform: scale(1.2);" checked>
-                            🎨 Include pattern overlay in animation
-                        </label>
-                        
-                        <div id="patternSelector" style="margin-left: 20px; margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 8px; font-size: 0.9em; color: #495057; font-weight: 500;">
-                                Pattern Type:
-                            </label>
-                            <select id="patternType" style="width: 100%; padding: 8px; border: 2px solid #e9ecef; border-radius: 8px; margin-bottom: 10px;">
-                                <option value="stars">✨ Twinkling Stars</option>
-                                <option value="dots">⚪ Polka Dots</option>
-                                <option value="chevron">📐 Chevron Zigzag</option>
-                                <option value="stripes">📏 Diagonal Stripes</option>
-                                <option value="hexagon">⬡ Hexagonal Grid</option>
-                                <option value="checkerboard">◼️ Checkerboard</option>
-                                <option value="circles">🔵 Floating Circles</option>
-                                <option value="waves">〰️ Wave Lines</option>
-                                <option value="grid">▦ Square Grid</option>
-                                <option value="triangles">🔺 Triangle Pattern</option>
-                            </select>
-                            
-                            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 8px;">
-                                <label style="font-size: 0.85em; color: #495057;">Density:</label>
-                                <input type="range" id="patternDensity" min="0.3" max="2.0" step="0.1" value="1.0" style="flex: 1;">
-                                <span id="densityValue" style="font-size: 0.8em; color: #6c757d; font-family: monospace; width: 30px;">1.0</span>
-                            </div>
-                            
-                            <div style="display: flex; gap: 8px; align-items: center;">
-                                <label style="font-size: 0.85em; color: #495057;">Opacity:</label>
-                                <input type="range" id="patternOpacity" min="0.1" max="1.0" step="0.1" value="0.7" style="flex: 1;">
-                                <span id="opacityValue" style="font-size: 0.8em; color: #6c757d; font-family: monospace; width: 30px;">0.7</span>
-                            </div>
-                        </div>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <label style="display: block; margin-bottom: 8px; font-size: 0.9em; color: #495057; font-weight: 500;">
-                                ⚡ Animation Speed:
-                            </label>
-                            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 5px;">
-                                <span style="font-size: 0.8em; color: #6c757d;">Slow</span>
-                                <input type="range" id="animationSpeed" min="0.25" max="3.0" step="0.25" value="1.0" style="flex: 1;">
-                                <span style="font-size: 0.8em; color: #6c757d;">Fast</span>
-                            </div>
-                            <div style="text-align: center;">
-                                <span id="speedValue" style="font-size: 0.85em; color: #495057; font-family: monospace; font-weight: bold;">1.0x Normal Speed</span>
-                            </div>
-                            <div style="font-size: 0.75em; color: #6c757d; text-align: center; margin-top: 3px;">
-                                Duration: <span id="durationDisplay">4.0s</span> per cycle
-                            </div>
+            <div class="main-area">
+                <!-- Original Preview -->
+                <div>
+                    <h2 class="section-title">Original SVG</h2>
+                    <div class="preview-area" id="originalPreview">
+                        <div class="placeholder-text">
+                            Upload an SVG file to see the original blob preview
                         </div>
                     </div>
-                    
-                    <button class="btn btn-small" onclick="collectVariation()" disabled id="collectBtn">
-                        ➕ Collect This One
-                    </button>
-                    <button class="btn btn-secondary btn-small" onclick="createAnimation()" disabled id="animateBtn">
-                        🎭 Make Flow Animation
+                </div>
+
+                <!-- Variation Display -->
+                <div>
+                    <h2 class="section-title">Generated Variation</h2>
+                    <div class="variation-display" id="variationDisplay">
+                        <div class="placeholder-text">
+                            Upload an SVG and generate variations<br>
+                            to see your smooth flowing shapes
+                        </div>
+                    </div>
+                    <button class="btn btn-outline" onclick="downloadVariation()" disabled id="downloadBtn">
+                        Download This Variation
                     </button>
                 </div>
-                
-                <div id="animationPreview" style="display: none; background: white; border-radius: 10px; padding: 15px; margin-top: 15px; min-height: 200px;">
-                    <div style="text-align: center; margin-bottom: 10px; font-weight: bold; color: #495057;">🌊 Flow Animation Preview</div>
-                    <div id="animationDisplay" style="width: 100%; height: 180px; display: flex; align-items: center; justify-content: center;"></div>
-                    <button class="btn btn-secondary btn-small" onclick="downloadAnimation()" style="margin-top: 10px;">
-                        📥 Download Flow Animation
+
+                <!-- Animation Preview -->
+                <div id="animationPreview" class="animation-preview">
+                    <div style="text-align: center; margin-bottom: 10px; font-weight: 600; color: #495057;">
+                        Flow Animation Preview
+                    </div>
+                    <div id="animationDisplay" class="animation-display"></div>
+                    <button class="btn btn-outline" onclick="downloadAnimation()" style="margin-top: 10px;">
+                        Download Flow Animation
                     </button>
                 </div>
             </div>
@@ -449,6 +748,15 @@
             updateSpeedDisplay();
             togglePatternSelector();
         });
+        
+        // Accordion functionality
+        function toggleAccordion(section) {
+            const header = document.querySelector(`#${section}-content`).previousElementSibling;
+            const content = document.getElementById(`${section}-content`);
+            
+            header.classList.toggle('active');
+            content.classList.toggle('active');
+        }
         
         function setupEventListeners() {
             const uploadArea = document.getElementById('uploadArea');
@@ -1125,8 +1433,8 @@
             
             let deformedPoints = applyFlowDeformation(originalPoints, flowStyle, intensity, smoothness, variationCounter);
             
-            // Balanced smoothing for clean but smooth results
-            const smoothingPasses = Math.floor(smoothness * 3) + 3; // 3-6 passes
+            // More conservative smoothing to preserve original shape character
+            const smoothingPasses = Math.floor(smoothness * 2) + 1; // 1-3 passes instead of 3-6
             deformedPoints = smoothPoints(deformedPoints, smoothingPasses);
             
             currentVariation = pointsToCleanPath(deformedPoints);
@@ -1135,7 +1443,7 @@
             document.getElementById('downloadBtn').disabled = false;
             document.getElementById('collectBtn').disabled = false;
             
-            showSuccess(`Generated clean ${flowStyle} variation #${variationCounter}!`);
+            showSuccess(`Generated ${flowStyle} variation #${variationCounter} that preserves original shape!`);
         }
         
         // NEW: Generate smooth flow sequence for water-like animations
@@ -1147,6 +1455,9 @@
             const intensity = parseFloat(document.getElementById('flowIntensity').value);
             const smoothness = parseFloat(document.getElementById('flowSmoothness').value);
             
+            // Generate a unique sequence seed each time for different variations
+            const sequenceSeed = Math.random() * 1000 + Date.now() * 0.001;
+            
             // Generate exactly 3 simple variations for clean animation
             const numFrames = 3;
             for (let i = 0; i < numFrames; i++) {
@@ -1157,7 +1468,8 @@
                     flowStyle, 
                     intensity, 
                     i,
-                    numFrames
+                    numFrames,
+                    sequenceSeed  // Pass the sequence seed for consistent but unique variations
                 );
                 
                 // Minimal smoothing to keep shapes simple but smooth
@@ -1176,11 +1488,11 @@
             document.getElementById('collectBtn').disabled = false;
             document.getElementById('animateBtn').disabled = false;
             
-            showSuccess(`🌊 Generated clean flow sequence! ${numFrames} simple variations ready for smooth animation.`);
+            showSuccess(`Generated unique flow sequence! ${numFrames} new variations ready for smooth animation.`);
         }
         
         // Simple deformation for clean, fraternal shapes
-        function applySimpleFlowDeformation(points, flowStyle, intensity, frameIndex, totalFrames) {
+        function applySimpleFlowDeformation(points, flowStyle, intensity, frameIndex, totalFrames, sequenceSeed) {
             return points.map((point, index) => {
                 const angle = Math.atan2(point.y - shapeCenter.y, point.x - shapeCenter.x);
                 const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
@@ -1189,19 +1501,57 @@
                 let deformation = 0;
                 const maxDeformation = intensity * 0.15; // Much more conservative (15% instead of 35%)
                 
-                // Simple wave-based deformation per frame
+                // Add randomness based on sequence seed while maintaining flow coherence
+                const seedOffset = sequenceSeed * 0.1;
+                const randomPhase1 = Math.sin(sequenceSeed * 12.9898) * 43758.5453;
+                const randomPhase2 = Math.sin(sequenceSeed * 78.233) * 43758.5453;
+                const phase1 = (randomPhase1 - Math.floor(randomPhase1)) * Math.PI * 2;
+                const phase2 = (randomPhase2 - Math.floor(randomPhase2)) * Math.PI * 2;
+                
+                // Vary the wave frequencies slightly based on flow style and seed
+                let freq1, freq2, freq3, freq4;
+                switch (flowStyle) {
+                    case 'gentle':
+                        freq1 = 3 + Math.sin(sequenceSeed * 1.1) * 0.5;
+                        freq2 = 7 + Math.sin(sequenceSeed * 1.7) * 0.8;
+                        freq3 = 4 + Math.sin(sequenceSeed * 2.3) * 0.6;
+                        freq4 = 5 + Math.sin(sequenceSeed * 3.1) * 0.7;
+                        break;
+                    case 'dynamic':
+                        freq1 = 4 + Math.sin(sequenceSeed * 1.3) * 1.0;
+                        freq2 = 6 + Math.sin(sequenceSeed * 1.9) * 1.2;
+                        freq3 = 5 + Math.sin(sequenceSeed * 2.7) * 0.8;
+                        freq4 = 7 + Math.sin(sequenceSeed * 3.5) * 1.0;
+                        break;
+                    case 'rhythmic':
+                        freq1 = 2 + Math.sin(sequenceSeed * 0.9) * 0.3;
+                        freq2 = 8 + Math.sin(sequenceSeed * 1.5) * 1.0;
+                        freq3 = 3 + Math.sin(sequenceSeed * 2.1) * 0.4;
+                        freq4 = 6 + Math.sin(sequenceSeed * 2.9) * 0.8;
+                        break;
+                    case 'chaotic':
+                        freq1 = 5 + Math.sin(sequenceSeed * 1.7) * 1.5;
+                        freq2 = 3.7 + Math.sin(sequenceSeed * 2.3) * 1.2;
+                        freq3 = 7.3 + Math.sin(sequenceSeed * 3.1) * 1.8;
+                        freq4 = 4.2 + Math.sin(sequenceSeed * 3.7) * 1.4;
+                        break;
+                    default:
+                        freq1 = 3; freq2 = 7; freq3 = 4; freq4 = 5;
+                }
+                
+                // Generate smooth flowing variations with randomized parameters
                 switch (frameIndex) {
-                    case 0: // Original-ish shape
-                        deformation = Math.sin(angle * 3) * maxDeformation * 0.5 +
-                                     Math.sin(angle * 7) * maxDeformation * 0.3;
+                    case 0: // First frame
+                        deformation = Math.sin(angle * freq1 + phase1) * maxDeformation * 0.5 +
+                                     Math.sin(angle * freq2 + phase2) * maxDeformation * 0.3;
                         break;
-                    case 1: // Middle variation
-                        deformation = Math.sin(angle * 4 + Math.PI/3) * maxDeformation * 0.6 +
-                                     Math.cos(angle * 5) * maxDeformation * 0.4;
+                    case 1: // Middle frame
+                        deformation = Math.sin(angle * freq3 + phase1 + Math.PI/3) * maxDeformation * 0.6 +
+                                     Math.cos(angle * freq4 + phase2) * maxDeformation * 0.4;
                         break;
-                    case 2: // Return variation
-                        deformation = Math.sin(angle * 3.5 + Math.PI/6) * maxDeformation * 0.5 +
-                                     Math.sin(angle * 6 + Math.PI/2) * maxDeformation * 0.3;
+                    case 2: // Final frame
+                        deformation = Math.sin(angle * (freq1 + freq3) * 0.5 + phase1 + Math.PI/6) * maxDeformation * 0.5 +
+                                     Math.sin(angle * (freq2 + freq4) * 0.5 + phase2 + Math.PI/2) * maxDeformation * 0.3;
                         break;
                 }
                 
@@ -1287,25 +1637,25 @@
                 const radius = Math.sqrt((point.x - shapeCenter.x) ** 2 + (point.y - shapeCenter.y) ** 2);
                 
                 let deformation = 0;
-                const maxDeformation = intensity * 0.15; // Conservative deformation
+                const maxDeformation = intensity * 0.08; // Much more conservative - preserve shape identity
                 
+                // Use simpler, lower-frequency deformations to preserve original shape character
                 switch (flowStyle) {
                     case 'gentle':
-                        deformation = Math.sin(angle * 3 + seed * 0.1) * maxDeformation * 0.8 +
-                                     Math.sin(angle * 5 + seed * 0.15) * maxDeformation * 0.5;
+                        deformation = Math.sin(angle * 2 + seed * 0.1) * maxDeformation * 0.7 +
+                                     Math.sin(angle * 4 + seed * 0.1) * maxDeformation * 0.3;
                         break;
                     case 'dynamic':
-                        deformation = Math.sin(angle * 4 + seed * 0.1) * maxDeformation * 0.9 +
-                                     Math.cos(angle * 6 + seed * 0.2) * maxDeformation * 0.6;
+                        deformation = Math.sin(angle * 3 + seed * 0.1) * maxDeformation * 0.8 +
+                                     Math.cos(angle * 5 + seed * 0.15) * maxDeformation * 0.4;
                         break;
                     case 'rhythmic':
-                        deformation = Math.sin(angle * 2 + seed * 0.05) * maxDeformation * 1.0 +
-                                     Math.sin(angle * 8 + seed * 0.1) * maxDeformation * 0.4;
+                        deformation = Math.sin(angle * 1.5 + seed * 0.08) * maxDeformation * 0.9 +
+                                     Math.sin(angle * 6 + seed * 0.1) * maxDeformation * 0.2;
                         break;
                     case 'chaotic':
-                        deformation = Math.sin(angle * 5 + seed * 0.1) * maxDeformation * 0.7 +
-                                     Math.cos(angle * 3.7 + seed * 0.15) * maxDeformation * 0.5 +
-                                     Math.sin(angle * 7.3 + seed * 0.12) * maxDeformation * 0.4;
+                        deformation = Math.sin(angle * 4 + seed * 0.1) * maxDeformation * 0.6 +
+                                     Math.cos(angle * 2.5 + seed * 0.12) * maxDeformation * 0.4;
                         break;
                 }
                 
@@ -1465,7 +1815,7 @@
             const duration = (5.0 / speed).toFixed(1);
             const flowStyle = document.getElementById('flowStyle').value;
             
-            let message = `🌊 Smooth ${flowStyle} flow animation ready with ${collectedVariations.length} frames`;
+            let message = `Smooth ${flowStyle} flow animation ready with ${collectedVariations.length} frames`;
             if (includePattern) {
                 message += ` and ${patternName} pattern`;
             }
@@ -1625,7 +1975,7 @@
             a.click();
             URL.revokeObjectURL(url);
             
-            let message = `📥 Downloaded smooth ${flowStyle} flow animation with ${collectedVariations.length} frames`;
+            let message = `Downloaded smooth ${flowStyle} flow animation with ${collectedVariations.length} frames`;
             if (includePattern) {
                 message += ` and ${patternType} pattern`;
             }
@@ -1656,8 +2006,8 @@
             updateColorInput(globalColor);
             document.getElementById('currentColorDisplay').textContent = globalColor;
             
-            document.getElementById('originalPreview').innerHTML = '<div style="text-align: center; color: #6c757d;">Upload an SVG to see preview</div>';
-            document.getElementById('variationDisplay').innerHTML = '<div style="text-align: center; color: #6c757d;">Upload an SVG and generate variations<br>to see smooth flowing animations!</div>';
+            document.getElementById('originalPreview').innerHTML = '<div class="placeholder-text">Upload an SVG file to see the original blob preview</div>';
+            document.getElementById('variationDisplay').innerHTML = '<div class="placeholder-text">Upload an SVG and generate variations<br>to see your smooth flowing shapes</div>';
             document.getElementById('animationPreview').style.display = 'none';
             
             ['generateBtn', 'batchBtn', 'downloadBtn', 'collectBtn', 'animateBtn'].forEach(id => {
@@ -1674,7 +2024,7 @@
             const errorDiv = document.createElement('div');
             errorDiv.className = 'error';
             errorDiv.textContent = message;
-            document.querySelector('.upload-section').appendChild(errorDiv);
+            document.querySelector('.sidebar').appendChild(errorDiv);
             setTimeout(() => errorDiv.remove(), 5000);
         }
         
@@ -1682,7 +2032,7 @@
             const successDiv = document.createElement('div');
             successDiv.className = 'success';
             successDiv.textContent = message;
-            document.querySelector('.upload-section').appendChild(successDiv);
+            document.querySelector('.sidebar').appendChild(successDiv);
             setTimeout(() => successDiv.remove(), 3000);
         }
     </script>
