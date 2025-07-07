@@ -45,7 +45,29 @@ let originalPath = '';
             updatePatternDisplays();
             updateSpeedDisplay();
             togglePatternSelector();
+            initializeAccordions();
         });
+        
+        // Initialize accordion states - animation panel open by default
+        function initializeAccordions() {
+            // Close color settings by default
+            const colorHeader = document.querySelector('[onclick="toggleAccordion(\'colors\')"');
+            const colorContent = document.getElementById('colors-content');
+            colorHeader.classList.remove('active');
+            colorContent.classList.remove('active');
+            
+            // Close flow parameters by default
+            const flowHeader = document.querySelector('[onclick="toggleAccordion(\'flow\')"');
+            const flowContent = document.getElementById('flow-content');
+            flowHeader.classList.remove('active');
+            flowContent.classList.remove('active');
+            
+            // Open animation settings by default
+            const animationHeader = document.querySelector('[onclick="toggleAccordion(\'animation\')"');
+            const animationContent = document.getElementById('animation-content');
+            animationHeader.classList.add('active');
+            animationContent.classList.add('active');
+        }
         
         // Accordion functionality
         function toggleAccordion(section) {
@@ -1017,29 +1039,40 @@ let originalPath = '';
             const viewBoxWidth = bounds.width + (padding * 2);
             const viewBoxHeight = bounds.height + (padding * 2);
             
-            // Use global colors or random colors based on checkbox
-            let color1, color2;
-            if (document.getElementById('randomColors').checked) {
-                color1 = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
-                color2 = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
-            } else {
-                color1 = globalColor;
-                color2 = globalColorSecondary;
-            }
-            
             const flowStyle = document.getElementById('flowStyle').value;
             const flowName = document.getElementById('flowStyle').options[document.getElementById('flowStyle').selectedIndex].text;
+            
+            // Use global colors or random colors based on checkbox
+            let fillStyle;
+            if (document.getElementById('randomColors').checked) {
+                const color1 = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+                const color2 = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6,'0');
+                fillStyle = `url(#grad${variationCounter})`;
+                var gradientDef = `
+                        <linearGradient id="grad${variationCounter}" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:${color1};stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:${color2};stop-opacity:0.8" />
+                        </linearGradient>`;
+            } else if (flowStyle === 'gentle') {
+                // For gentle flow, use solid color instead of gradient
+                fillStyle = globalColor;
+                var gradientDef = '';
+            } else {
+                // For other flow styles, use gradient
+                fillStyle = `url(#grad${variationCounter})`;
+                var gradientDef = `
+                        <linearGradient id="grad${variationCounter}" x1="0%" y1="0%" x2="100%" y2="100%">
+                            <stop offset="0%" style="stop-color:${globalColor};stop-opacity:1" />
+                            <stop offset="100%" style="stop-color:${globalColorSecondary};stop-opacity:0.8" />
+                        </linearGradient>`;
+            }
             
             display.innerHTML = `
                 <div class="variation-label">${flowName} #${variationCounter}</div>
                 <svg class="variation-svg" viewBox="${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}">
-                    <defs>
-                        <linearGradient id="grad${variationCounter}" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:${color1};stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:${color2};stop-opacity:0.8" />
-                        </linearGradient>
+                    <defs>${gradientDef}
                     </defs>
-                    <path d="${currentVariation}" fill="url(#grad${variationCounter})" stroke="none"/>
+                    <path d="${currentVariation}" fill="${fillStyle}" stroke="none"/>
                 </svg>
             `;
         }
@@ -1071,7 +1104,10 @@ let originalPath = '';
         }
         
         function collectVariation() {
-            if (!currentVariation) return;
+            if (!currentVariation) {
+                showError('No variation to collect. Please generate a variation first.');
+                return;
+            }
             
             collectedVariations.push(currentVariation);
             updateCollectionStatus();
@@ -1136,9 +1172,19 @@ let originalPath = '';
             const viewBoxWidth = Math.ceil(maxX - minX + padding * 2);
             const viewBoxHeight = Math.ceil(maxY - minY + padding * 2);
             
-            // Simple 3-frame animation with clean loop
+            // Dynamic animation based on collected variations
             const animationValues = collectedVariations.join(';') + ';' + collectedVariations[0];
-            const keyTimes = "0;0.33;0.67;1";
+            
+            // Generate dynamic keyTimes based on number of collected variations
+            const numFrames = collectedVariations.length;
+            const keyTimesArray = [];
+            for (let i = 0; i <= numFrames; i++) {
+                keyTimesArray.push((i / numFrames).toFixed(2));
+            }
+            const keyTimes = keyTimesArray.join(';');
+            
+            // Generate dynamic keySplines for smooth transitions
+            const keySplines = Array(numFrames).fill("0.4 0 0.6 1").join(';');
             
             // Get animation speed settings
             const speedMultiplier = parseFloat(document.getElementById('animationSpeed').value);
@@ -1171,7 +1217,7 @@ let originalPath = '';
                             values="${animationValues}"
                             keyTimes="${keyTimes}"
                             calcMode="spline"
-                            keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+                            keySplines="${keySplines}"
                         />
                     </path>
                 </clipPath>`;
@@ -1208,7 +1254,7 @@ let originalPath = '';
                         values="${animationValues}"
                         keyTimes="${keyTimes}"
                         calcMode="spline"
-                        keySplines="0.4 0 0.6 1;0.4 0 0.6 1;0.4 0 0.6 1"
+                        keySplines="${keySplines}"
                     />
                 </path>
                 
